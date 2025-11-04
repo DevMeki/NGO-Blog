@@ -1044,6 +1044,12 @@
   .text-\[\#5f758c\] {
     color: #5f758c;
   }
+  .text-\[\#482d2d\] {
+    color: #482d2d;
+  }
+  .text-\[\#48372d\] {
+    color: #48372d;
+  }
   .text-\[\#111418\] {
     color: #111418;
   }
@@ -1052,6 +1058,15 @@
   }
   .text-\[\#617589\] {
     color: #617589;
+  }
+  .text-\[\#fa0909\] {
+    color: #fa0909;
+  }
+  .text-\[\#fd0303\] {
+    color: #fd0303;
+  }
+  .text-\[\#ff0000\] {
+    color: #ff0000;
   }
   .text-gray-500 {
     color: var(--color-gray-500);
