@@ -74,9 +74,9 @@
                                             <span class="material-symbols-outlined text-2xl">visibility</span>
                                         </button>
                                     </div>
-                                    
-                                        <p class="text-[#fd0303] text-base font-medium leading-normal pb-2" id="emptyp">
-                                        </p>
+
+                                    <p class="text-[#fd0303] text-base font-medium leading-normal pb-2" id="emptyp">
+                                    </p>
 
                                 </label>
                                 <!-- <a class="text-primary text-sm font-normal leading-normal pt-2 text-right hover:underline"
@@ -89,6 +89,9 @@
                             <span class="truncate">Log In</span>
                         </button>
                     </form>
+
+                    <a class="text-primary text-lg font-normal leading-normal pt-2 text-center hover:underline"
+                        href="./Admin_register.html">Register</a>
                 </div>
                 <!-- <p class="text-center text-sm text-[#617589] dark:text-gray-500">© 2024 Organization Name. All Rights
                     Reserved. <a class="text-primary hover:underline" href="#">Privacy Policy</a></p> -->
@@ -108,13 +111,12 @@
         emptyu1.innerHTML = "";
         emptyp1.innerHTML = "";
 
-        if (username === ""){
+        if (username === "") {
             emptyu1.innerHTML = "Username cannot be empty";
-        } else if (password === ""){
+        } else if (password === "") {
             emptyp1.innerHTML = "Password cannont be empty";
-        } else if (username === 'admin' && password === 'password1'){
+        } else if (username === 'admin' && password === 'password1') {
             alert('login successful');
-            window.location.href='./Admin Dashboard.php';
         } else {
             alert('invalid username or password');
         }
