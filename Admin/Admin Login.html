@@ -114,9 +114,9 @@
             emptyp1.innerHTML = "Password cannont be empty";
         } else if (username === 'admin' && password === 'password1'){
             alert('login successful');
+            window.location.href='./Admin Dashboard.php';
         } else {
             alert('invalid username or password');
-            window.location.href='./Admin Dashboard.php';
         }
 
     }
