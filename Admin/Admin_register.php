@@ -1,24 +1,6 @@
 <?php
-session_start();
-include_once '../Backend/Config.php';
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = trim($_POST['username']);
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-
-    $stmt = $conn->prepare("INSERT INTO admins (username, password) VALUES (?, ?)");
-    $stmt->bind_param("ss", $username, $password);
-
-    if ($stmt->execute()) {
-        $_SESSION['message'] = "Registration successful. You can now log in.";
-        header("location: .Admin_login.php");
-        exit();
-    } else {
-        $error = "username already exist!";
-    }
-}
+include '../Backend/Config.php';
 ?>
-
 <!DOCTYPE html>
 
 <html class="light" lang="en">
@@ -52,6 +34,60 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body class="font-display">
+    <?php
+    //define variables and set to empty values
+    $username = $password = $Confirm_password = "";
+    $usernameErr = $passwordErr = $Confirm_passwordErr = "";
+
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if (empty($_POST["username"])) {
+            $usernameErr = "Username is required";
+        } else {
+            $x = $_POST['username'];
+            //check if username only contains letters and whitespace
+            if (!preg_match("/^[A-Za-z0-9\s]+$/", $x)) {
+                $usernameErr = "Only letters, numbers and white space allowed";
+            } else {
+                $username = test_input($_POST["username"]);
+            }
+        }
+
+        if (empty($_POST["password"])) {
+            $passwordErr = "Password is required";
+        } else {
+            $password = test_input($_POST["password"]);
+            $password = md5($password);
+        }
+
+        if (empty($_POST["Confirm_password"])) {
+            $Confirm_passwordErr = "Confirm Password is required";
+        } else {
+            $Confirm_password = test_input($_POST["Confirm_password"]);
+
+            $checkusername = "SELECT * From admins where username = '$username'";
+            $result = $conn->query($checkusername);
+            if ($result->num_rows > 0) {
+                $usernameErr = "Username already taken !";
+            } else {
+                $insertQuery = "INSERT INTO admins (username, password)
+                    VALUES ('$username', '$password')";
+                if ($conn->query($insertQuery) == TRUE) {
+                    header("location: Admin_Login.php");
+                // } else {
+                //     alert("Error: " . $insertQuery . "<br>" . $conn->error);
+                }
+            }
+        }
+    }
+
+    function test_input($data)
+    {
+        $data = trim($data);
+        $data = stripslashes($data);
+        $data = htmlspecialchars($data);
+        return $data;
+    }
+    ?>
     <div
         class="relative flex min-h-screen w-full flex-col items-center justify-center bg-background-light text-[#2D3748]">
 
@@ -64,7 +100,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         credentials to access the admin dashboard</p>
                 </div>
                 <div class="flex flex-col p-8 bg-white rounded-xl border border-gray-200 shadow-sm">
-                    <form class="flex flex-col gap-6" method="post" action="" id="RegisterForm">
+                    <form class="flex flex-col gap-6" method="post"
+                        action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                         <div class="flex flex-col gap-4">
                             <label class="flex flex-col w-full">
                                 <p class="text-[#2D3748] text-base font-medium leading-normal pb-2">
@@ -72,9 +109,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                                 <input
                                     class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#2D3748] focus:outline-0 border border-[#dbe0e6] bg-background-light focus:border-primary focus:ring-2 focus:ring-primary/30 h-14 placeholder:text-[#617589] p-[15px] text-base font-normal leading-normal transition-all"
-                                    placeholder="Username" type="text" value="" id="username" />
+                                    placeholder="Username" type="text" name="username" value="" id="username" />
 
                                 <p class="text-[#ff0000] text-base font-medium leading-normal pb-2" id="emptyu"></p>
+                                <p class="text-[#ff0000] text-base font-medium leading-normal pb-2">
+                                    <?php echo $usernameErr; ?>
+                                </p>
 
                             </label>
                             <div class="flex flex-col">
@@ -86,24 +126,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     <div class="relative flex w-full flex-1 items-stretch">
                                         <input
                                             class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#2D3748] focus:outline-0 border border-[#dbe0e6] bg-background-light focus:border-primary focus:ring-2 focus:ring-primary/30 h-14 placeholder:text-[#617589] p-[15px] text-base font-normal leading-normal transition-all"
-                                            placeholder="Enter your password" type="password" value="" id="password" />
+                                            placeholder="Enter your password" name="password" type="password" value=""
+                                            id="password" />
                                         </p>
 
                                         <button
                                             class="absolute inset-y-0 right-0 flex items-center pr-4 text-[#617589] dark:text-gray-400"
-                                            type="button" onclick="showpassword()">
-                                            <span class="material-symbols-outlined text-2xl">visibility</span>
+                                            type="button" onclick="show_Password()">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                fill="currentColor" class="size-6">
+                                                <path
+                                                    d="M3.53 2.47a.75.75 0 0 0-1.06 1.06l18 18a.75.75 0 1 0 1.06-1.06l-18-18ZM22.676 12.553a11.249 11.249 0 0 1-2.631 4.31l-3.099-3.099a5.25 5.25 0 0 0-6.71-6.71L7.759 4.577a11.217 11.217 0 0 1 4.242-.827c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113Z" />
+                                                <path
+                                                    d="M15.75 12c0 .18-.013.357-.037.53l-4.244-4.243A3.75 3.75 0 0 1 15.75 12ZM12.53 15.713l-4.243-4.244a3.75 3.75 0 0 0 4.244 4.243Z" />
+                                                <path
+                                                    d="M6.75 12c0-.619.107-1.213.304-1.764l-3.1-3.1a11.25 11.25 0 0 0-2.63 4.31c-.12.362-.12.752 0 1.114 1.489 4.467 5.704 7.69 10.675 7.69 1.5 0 2.933-.294 4.242-.827l-2.477-2.477A5.25 5.25 0 0 1 6.75 12Z" />
+                                            </svg>
+
                                         </button>
                                     </div>
 
                                     <p class="text-[#fd0303] text-base font-medium leading-normal pb-2" id="emptyp">
                                     </p>
+                                    <p class="text-[#ff0000] text-base font-medium leading-normal pb-2">
+                                        <?php echo $passwordErr; ?>
+                                    </p>
 
                                 </label>
+                                <!-- <a class="text-primary text-sm font-normal leading-normal pt-2 text-right hover:underline"
+                                    href="#">Forgot Password?</a> -->
 
-                            </div>
-
-                            <div class="flex flex-col">
                                 <label class="flex flex-col w-full">
                                     <p
                                         class="text-[#2D3748] dark:text-gray-300 text-base font-medium leading-normal pb-2">
@@ -112,52 +164,60 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     <div class="relative flex w-full flex-1 items-stretch">
                                         <input
                                             class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#2D3748] focus:outline-0 border border-[#dbe0e6] bg-background-light focus:border-primary focus:ring-2 focus:ring-primary/30 h-14 placeholder:text-[#617589] p-[15px] text-base font-normal leading-normal transition-all"
-                                            placeholder="Enter your password" type="password" value=""
-                                            id="Confirm_password" />
+                                            placeholder="Enter your password" type="password" name="Confirm_password"
+                                            value="" id="Confirm_password" />
                                         </p>
 
                                         <button
                                             class="absolute inset-y-0 right-0 flex items-center pr-4 text-[#617589] dark:text-gray-400"
-                                            type="button" onclick="showpassword()">
-                                            <span class="material-symbols-outlined text-2xl">visibility</span>
+                                            type="button" onclick="show_Password()">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                fill="currentColor" class="size-6">
+                                                <path
+                                                    d="M3.53 2.47a.75.75 0 0 0-1.06 1.06l18 18a.75.75 0 1 0 1.06-1.06l-18-18ZM22.676 12.553a11.249 11.249 0 0 1-2.631 4.31l-3.099-3.099a5.25 5.25 0 0 0-6.71-6.71L7.759 4.577a11.217 11.217 0 0 1 4.242-.827c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113Z" />
+                                                <path
+                                                    d="M15.75 12c0 .18-.013.357-.037.53l-4.244-4.243A3.75 3.75 0 0 1 15.75 12ZM12.53 15.713l-4.243-4.244a3.75 3.75 0 0 0 4.244 4.243Z" />
+                                                <path
+                                                    d="M6.75 12c0-.619.107-1.213.304-1.764l-3.1-3.1a11.25 11.25 0 0 0-2.63 4.31c-.12.362-.12.752 0 1.114 1.489 4.467 5.704 7.69 10.675 7.69 1.5 0 2.933-.294 4.242-.827l-2.477-2.477A5.25 5.25 0 0 1 6.75 12Z" />
+                                            </svg>
+
                                         </button>
                                     </div>
 
                                     <p class="text-[#fd0303] text-base font-medium leading-normal pb-2" id="emptyp2">
                                     </p>
+                                    <p class="text-[#ff0000] text-base font-medium leading-normal pb-2">
+                                        <?php echo $Confirm_passwordErr; ?>
+                                    </p>
 
                                 </label>
-                                <!-- <a class="text-primary text-sm font-normal leading-normal pt-2 text-right hover:underline"
-                                    href="#">Forgot Password?</a> -->
                             </div>
                         </div>
                         <button
                             class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-4 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors"
-                            type="button" onclick="validateRegister()" value="submit">
+                            type="button" onclick="validateRegister()" name="" id="RegisterBTN">
                             <span class="truncate">Register</span>
                         </button>
                     </form>
 
-                    <?php if (isset($error)): ?>
-                        <p class="text-red-500 text-center mt-4"><?php echo $error; ?></p>
-                    <?php endif; ?>
-
                     <a class="text-primary text-lg font-normal leading-normal pt-2 text-center hover:underline"
-                        href="./Admin_Login.php">Login</a>
+                        href="./Admin_login.php">Login</a>
                 </div>
                 <!-- <p class="text-center text-sm text-[#617589] dark:text-gray-500">© 2024 Organization Name. All Rights
                     Reserved. <a class="text-primary hover:underline" href="#">Privacy Policy</a></p> -->
             </div>
         </main>
     </div>
+
 </body>
 
 <script>
-    function showpassword(){
+
+    function show_Password() {
         const x = document.getElementById("password");
         const y = document.getElementById("Confirm_password");
 
-        if (x.type === "password"){
+        if (x.type === "password") {
             x.type = "text";
             y.type = "text";
         } else {
@@ -169,12 +229,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     function validateRegister() {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
-        const confirm_password = document.getElementById('Confirm_password').value;
+        const Confirm_password = document.getElementById('Confirm_password').value;
         const emptyu1 = document.getElementById('emptyu');
         const emptyp1 = document.getElementById('emptyp');
         const emptyp2 = document.getElementById('emptyp2');
-
-        const x = document.getElementById("RegisterForm");
+        const registerBTN = document.getElementById('RegisterBTN');
 
         emptyu1.innerHTML = "";
         emptyp1.innerHTML = "";
@@ -182,14 +241,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if (username === "") {
             emptyu1.innerHTML = "Username cannot be empty";
+        } else if (!/^[A-Za-z0-9\s]+$/.test(username)) {
+            emptyu1.innerHTML = "Username can only contain letters, numbers and spaces";
         } else if (password === "") {
             emptyp1.innerHTML = "Password cannont be empty";
-        } else if (confirm_password === "") {
+        } else if (Confirm_password === "") {
             emptyp2.innerHTML = "Confirm Password cannot be empty";
-        } else if (password !== confirm_password) {
+        } else if (password !== Confirm_password) {
             emptyp2.innerHTML = "Passwords do not match";
         } else {
-            x.action = "<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>";
+            registerBTN.type = "submit";
+            registerBTN.name = "submit";
         }
 
     }
