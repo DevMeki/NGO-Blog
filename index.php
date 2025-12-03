@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="./style.css" rel="stylesheet">
+  <!-- <link href="./style.css" rel="stylesheet"> -->
   <title>Home</title>
 
   <link rel="icon" href="Assets/img/logo bg.png" type="image/x-icon">
@@ -19,62 +19,140 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Gravitas+One&display=swap" rel="stylesheet">
-  
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap"
+    rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
+    /* Existing Scroll Animations */
     .fade-in-up {
       opacity: 0;
       transform: translateY(30px);
       transition: all 0.6s ease-out;
     }
-    
+
     .fade-in-up.visible {
       opacity: 1;
       transform: translateY(0);
     }
-    
+
     .fade-in-left {
       opacity: 0;
       transform: translateX(-30px);
       transition: all 0.6s ease-out;
     }
-    
+
     .fade-in-left.visible {
       opacity: 1;
       transform: translateX(0);
     }
-    
+
     .fade-in-right {
       opacity: 0;
       transform: translateX(30px);
       transition: all 0.6s ease-out;
     }
-    
+
     .fade-in-right.visible {
       opacity: 1;
       transform: translateX(0);
     }
-    
+
     .scale-in {
       opacity: 0;
       transform: scale(0.9);
       transition: all 0.6s ease-out;
     }
-    
+
     .scale-in.visible {
       opacity: 1;
       transform: scale(1);
     }
-    
-    .stagger-delay-1 { transition-delay: 0.1s; }
-    .stagger-delay-2 { transition-delay: 0.2s; }
-    .stagger-delay-3 { transition-delay: 0.3s; }
-    .stagger-delay-4 { transition-delay: 0.4s; }
+
+    .stagger-delay-1 {
+      transition-delay: 0.1s;
+    }
+
+    .stagger-delay-2 {
+      transition-delay: 0.2s;
+    }
+
+    .stagger-delay-3 {
+      transition-delay: 0.3s;
+    }
+
+    .stagger-delay-4 {
+      transition-delay: 0.4s;
+    }
+
+    /* LOGO SPIN ANIMATION (Retained) */
+    @keyframes spin-45 {
+      from {
+        transform: rotate(45deg);
+      }
+
+      to {
+        transform: rotate(405deg);
+      }
+    }
+
+    .animate-spin-45 {
+      animation: spin-45 10s linear infinite;
+    }
+  </style>
+  <style>
+    @keyframes typing {
+      0% {
+        width: 0;
+      }
+
+      60% {
+        width: 100%;
+      }
+
+      /* 3s typing of 5s total = 60% */
+      80% {
+        width: 100%;
+      }
+
+      100% {
+        width: 0;
+      }
+    }
+
+    @keyframes cursor {
+
+      0%,
+      60%,
+      100% {
+        border-color: transparent;
+      }
+
+      61%,
+      79% {
+        border-color: currentColor;
+      }
+    }
+
+    .typing-animation {
+      display: inline-block;
+      overflow: hidden;
+      white-space: nowrap;
+      border-right: 3px solid;
+      width: 0;
+      animation:
+        typing 5s steps(40, end) infinite,
+        cursor 5s step-end infinite;
+    }
   </style>
 </head>
 
 <body class="text-gray-950 bg-gray-100">
 
   <?php
+  // --- PHP INCLUDES (Retained) ---
   require_once 'Backend/Config.php';
   session_start();
   require_once 'Backend/track_visits.php';
@@ -84,9 +162,9 @@
   $blog_posts = [];
   try {
     $sql = "SELECT post_id, Title, Content, Image_path, Date_posted, Categories, Tags, Featured, published_by 
-              FROM blog_post 
-              ORDER BY Date_posted DESC 
-              LIMIT 3";
+                      FROM blog_post 
+                      ORDER BY Date_posted DESC 
+                      LIMIT 3";
 
     $result = $conn->query($sql);
 
@@ -101,6 +179,101 @@
   }
   ?>
 
+  <div class="bg-gray-100 min-h-screen font-sans">
+
+    <div
+      class="relative min-h-screen flex flex-col justify-center items-center py-10 px-6 sm:px-10 overflow-hidden bg-blue-950 text-white">
+
+      <p
+        class="font-semibold text-lg sm:text-2xl border border-white rounded-full px-6 py-2 bg-black bg-opacity-30 w-max mb-10 text-center scale-in">
+        Welcome To
+      </p>
+
+      <section class="flex flex-col lg:flex-row justify-between items-center w-full max-w-6xl z-10">
+        <div class="max-w-xl text-center lg:text-left mb-12 lg:mb-0">
+          <h1 class="text-4xl sm:text-6xl font-extrabold leading-tight fade-in-left">
+            <span>CONCERNED <br> IGBO-EZE NORTH </span>
+            <span class="typing-animation"> YOUTHS (CINY)</span>
+          </h1>
+        </div>
+
+        <div
+          class="w-64 h-64 sm:w-80 sm:h-80 bg-white/10 rounded-full flex justify-center items-center p-4 shadow-2xl backdrop-blur-sm">
+          <img src="Assets/img/logo bg.png" alt="CINY Logo" class="w-full h-full object-contain p-4 animate-spin-45" />
+        </div>
+      </section>
+
+      <div class="absolute bottom-6 flex justify-center fade-in-up stagger-delay-2">
+        <svg class="w-8 h-8 text-white animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </div>
+    </div>
+
+    <hr class="border-t border-gray-300">
+
+    <div class="min-h-screen bg-gray-50 p-6 sm:p-10 font-sans flex flex-col justify-center">
+      <main class="w-full max-w-4xl mx-auto flex flex-col md:flex-row gap-10">
+        <div class="md:w-1/3">
+          <h2 class="text-3xl font-bold text-blue-800 mb-4 border-b pb-2 fade-in-left">BIO</h2>
+        </div>
+
+        <div class="md:w-2/3 text-lg leading-relaxed text-gray-700">
+          <p class="mb-4 fade-in-up stagger-delay-1">
+            Concerned Igbo-Eze North Youth (CINY) is a **non-profitable, non-religious and non-political organization**.
+            Interested only in the growth, development, and good-welfare of the people of Igbo-Eze Noth.
+          </p>
+          <p class="mb-4 fade-in-up stagger-delay-2">
+            The youth-led movement is founded with the primary aim of advocating for **social justice, community
+            development, and responsible leadership** in Igbo-Eze North Local Government Area of Enugu State, Nigeria.
+          </p>
+          <p class="mb-4 fade-in-up stagger-delay-3">
+            Driven by a shared commitment to the protection of human rights, security, youth empowerment, and the
+            overall well-being of citizens, CINY stands as the unified voice of the youth calling for transparency,
+            equity, and sustainable progress across all sectors.
+          </p>
+          <p class="fade-in-up stagger-delay-4">
+            We are a watchdog of the people, confronting injustices, holding public servants accountable, and driving
+            grassroots development initiatives that impact lives positively.
+          </p>
+        </div>
+      </main>
+    </div>
+
+    <hr class="border-t border-gray-300">
+
+    <div class="bg-gray-100 p-6 sm:p-10 font-sans relative overflow-hidden flex flex-col justify-center py-20">
+
+      <div class="w-full max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
+
+        <div class="fade-in-left">
+          <h2 class="text-4xl font-extrabold text-gray-900 mb-6 border-b-4 border-blue-600 pb-2 w-max">VISION</h2>
+          <p class="text-xl leading-relaxed text-gray-700">
+            To build a just, peaceful, and progressive Igbo-Eze North where every citizen, especially the youth,
+            can live with dignity, access opportunities, and thrive in a secure and transparent society.
+          </p>
+        </div>
+
+        <div class="fade-in-right">
+          <h2 class="text-4xl font-extrabold text-gray-900 mb-6 border-b-4 border-blue-600 pb-2 w-max">MISSION
+          </h2>
+          <ul class="space-y-4 text-xl text-gray-700">
+            <li class="flex items-start">
+              <span class="text-2xl font-bold text-blue-600 mr-3 mt-1">•</span>
+              To defend and uphold the rights and welfare of every youth and vulnerable person in Igbo-Eze North.
+            </li>
+            <li class="flex items-start">
+              <span class="text-2xl font-bold text-blue-600 mr-3 mt-1">•</span>
+              To promote transparency, accountability, and responsiveness in governance and public institutions.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
   <main class="flex-1">
     <div class="px-4 sm:px-10 lg:px-10 flex flex-1 justify-center py-5">
       <div class="layout-content-container flex flex-col flex-1">
@@ -111,10 +284,12 @@
               data-alt="Abstract gradient background"
               style='background-image: linear-gradient(rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%), url("Assets/img/Cover 2.jpg")'>
               <div class="flex flex-col gap-2">
-                <h1 class="text-white text-4xl font-black leading-tight tracking-[-0.033em] @[480px]:text-5xl fade-in-up">
+                <h1
+                  class="text-white text-4xl font-black leading-tight tracking-[-0.033em] @[480px]:text-5xl fade-in-up">
                   Empowering Our Community, <br> One Initiative at a Time
                 </h1>
-                <h2 class="text-white/90 text-sm font-normal leading-normal @[480px]:text-base fade-in-up stagger-delay-1">
+                <h2
+                  class="text-white/90 text-sm font-normal leading-normal @[480px]:text-base fade-in-up stagger-delay-1">
                   We are a non-profit organization dedicated to making a positive impact in Igbo-Eze North.
                 </h2>
               </div>
@@ -127,18 +302,7 @@
     <div class="px-4 sm:px-10 lg:px-40 flex flex-1 justify-center py-10">
       <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
         <div class="flex flex-col gap-10 @container">
-          <div class="flex flex-col gap-4 text-center items-center">
-            <h1
-              class="text-blue-600 tracking-tight text-[32px] font-bold leading-tight @[480px]:text-4xl max-w-[720px] fade-in-up">
-              Our Mission
-            </h1>
-            <p class="text-[#617589] dark:text-gray-400 text-base font-normal leading-normal max-w-[720px] fade-in-up stagger-delay-1">
-              Our mission is the development of Igbo-Eze North and nothing more, either political or otherwise.
 
-              We are resolute and our only priority remains the wellbeing of Igbo-eze North. We remain non-political,
-              non-religious, and unbiased about our struggle.
-            </p>
-          </div>
           <div class="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4 p-0">
             <div
               class="flex flex-1 gap-4 rounded-xl border border-transparent bg-white p-6 flex-col items-center text-center shadow-sm hover:shadow-lg transition-all scale-in stagger-delay-1">
@@ -200,7 +364,6 @@
       </div>
     </div>
 
-
     <div class="px-4 sm:px-10 lg:px-40 flex flex-1 justify-center py-10">
       <div class="layout-content-container flex flex-col max-w-[960px] flex-1 gap-6">
         <h1 class="text-blue-600 tracking-tight text-[32px] font-bold leading-tight text-center fade-in-up">
@@ -241,7 +404,6 @@
       </div>
     </div>
 
-    <!-- Blog section starts here  -->
     <section class="px-4 sm:px-10 lg:px-40 flex flex-1 justify-center py-10">
       <div class="layout-content-container flex flex-col max-w-[960px] flex-1 gap-6">
         <h1 class="text-blue-600 tracking-tight text-[32px] font-bold leading-tight text-center fade-in-up">
@@ -287,7 +449,6 @@
                 </div>
               <?php endforeach; ?>
             <?php else: ?>
-              <!-- Fallback content if no blog posts are found -->
               <div class="col-span-3 text-center py-8 fade-in-up">
                 <p class="text-[#617589] text-lg">No blog posts available at the moment.</p>
               </div>
@@ -296,9 +457,6 @@
         </div>
       </div>
     </section>
-    <!-- Blog section ends here -->
-
-
     <div class="px-4 sm:px-10 lg:px-40 flex flex-1 justify-center py-10 bg-white">
       <div
         class="layout-content-container flex flex-col md:flex-row items-center justify-between max-w-[960px] flex-1 gap-8 p-8 rounded-xl fade-in-up">
@@ -321,23 +479,39 @@
   <?php require 'Footer.php'; ?>
 
   <script>
-    // Scroll animation implementation
-    document.addEventListener('DOMContentLoaded', function() {
+    // Function to set up the Intersection Observer
+    function setupIntersectionObserver() {
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             entry.target.classList.add('visible');
+            // Stop observing once visible to prevent re-triggering
+            observer.unobserve(entry.target);
           }
         });
       }, {
+        // Adjust threshold for when the element should be considered "visible"
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
       });
 
       // Observe all elements with animation classes
       document.querySelectorAll('.fade-in-up, .fade-in-left, .fade-in-right, .scale-in').forEach(element => {
-        observer.observe(element);
+        // Only observe elements that haven't been made visible yet
+        if (!element.classList.contains('visible')) {
+          observer.observe(element);
+        }
       });
+    }
+
+    // 1. Initial setup on DOM Content Loaded (fastest reliable check)
+    document.addEventListener('DOMContentLoaded', setupIntersectionObserver);
+
+    // 2. Fallback check after the page visually loads
+    // This is the critical change to fix issues on slow live servers
+    window.addEventListener('load', () => {
+      // Re-run the observer setup after a short delay to ensure layout is finalized
+      setTimeout(setupIntersectionObserver, 100);
     });
   </script>
 </body>

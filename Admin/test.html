@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Css Typing Animation</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+
+        .typing-animation {
+            width: 300px;
+            height: 50px;
+            border-right: 2px solid black;
+            white-space: nowrap;
+            overflow: hidden;
+            animation: typing 4s steps(30, end), blink-caret 0.75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from {
+                width: 0;
+            }
+            to {
+                width: 300px;
+            }
+        }
+
+        @keyframes blink-caret {
+            from, to {
+                border-color: transparent;
+            }
+            50% {
+                border-color: black;
+            }
+        }
+
+        .typewriter{
+            display: flex;
+            justify-content: center;
+        }
+        .typewriter-text{
+            /* fant-family: monospace; */
+            font-size: 1.5rem;
+            margin-inline: auto;
+            overflow: hidden;
+            /* keeps on a single line  */
+            white-space: nowrap;
+            /* The cursor  */
+            border-right: 2px solid;
+            /* steps = number of characters  */
+            animation: typing 3s steps(22), blink 0.75s infinite forwards;
+        }
+        @keyframes typing {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+
+        @keyframes blink {
+            from, to {
+                border-color: transparent;
+            }
+            50% {
+                border-color: black;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="typing-animation">
+        Hello, this is a typing animation!
+    </div>
+
+    <div class="typewriter">
+        <div>
+            <p class="typewriter-text">This is another example of a typing effect.</p>
+    </div>
+</body>
+</html>

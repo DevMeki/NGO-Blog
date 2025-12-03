@@ -21,7 +21,7 @@ include '../Backend/Config.php';
         rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <script
-        id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { primary: "oklch(64.6% 0.222 41.116)", "background-light": "#f8f7f6", "background-dark": "#221d10" }, fontFamily: { display: "Public Sans" }, borderRadius: { DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" } } } };</script>
+        id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { primary: "oklch(54.6% 0.245 262.881)", "background-light": "#f8f7f6", "background-dark": "#221d10" }, fontFamily: { display: "Public Sans" }, borderRadius: { DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" } } } };</script>
     <style>
         .material-symbols-outlined {
             font-variation-settings:
