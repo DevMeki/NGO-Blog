@@ -36,6 +36,10 @@ include '../Backend/Config.php';
 <body class="font-display">
 
     <?php
+    // require_once '../Backend/session_manager.php';
+    // $session = new SessionManager();
+    // $session->startSession();
+
     //define variables and set to empty values
     $username = $password = "";
     $usernameErr = $passwordErr = "";
@@ -59,17 +63,44 @@ include '../Backend/Config.php';
             $password = test_input($_POST["password"]);
             $password = md5($password);
 
-            $sql = "SELECT * FROM admins WHERE username = '$username' and password = '$password'";
-            $result = $conn->query($sql);
+            // UPDATED: Check if admin exists and is active
+            $sql = "SELECT * FROM admins WHERE username = ? AND password = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("ss", $username, $password);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
             if ($result->num_rows > 0) {
-                session_start();
                 $row = $result->fetch_assoc();
-                $_SESSION['username'] = $row['username'];
-                header("location: Admin_Dashboard.php");
-                exit();
+
+                // CHECK IF ADMIN IS ACTIVE
+                if ($row['Admin_status'] === 'active') {
+                    session_start();
+
+                    // Set session variables
+                    $_SESSION['username'] = $row['username'];
+                    $_SESSION['admin_id'] = $row['admin_id'];
+
+                    // Update last_login on login
+                    $update_sql = "UPDATE admins SET last_login = NOW() WHERE username = ?";
+                    $update_stmt = $conn->prepare($update_sql);
+                    $update_stmt->bind_param("s", $username);
+                    $update_stmt->execute();
+                    $update_stmt->close();
+
+                    $stmt->close();
+                    // After successful authentication:
+                    // $session->loginUser($admin['admin_id'], $admin['username']);
+                    header("location: Admin_Dashboard.php");
+                    exit();
+                } else {
+                    // Admin account is inactive
+                    $passwordErr = "Your account has been deactivated. Please contact the system administrator.";
+                }
             } else {
                 $passwordErr = "Incorrect username or password";
             }
+            $stmt->close();
         }
     }
 
@@ -166,7 +197,7 @@ include '../Backend/Config.php';
         </main>
     </div>
 
-    
+
 </body>
 
 <script>

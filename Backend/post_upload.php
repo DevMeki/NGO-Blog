@@ -1,5 +1,16 @@
 <?php
 
+session_start();
+require_once '../Backend/Config.php';
+
+//check if admin is logged in
+if (!isset($_SESSION['username'])) {
+    header('Location: Admin_login.php');
+    exit();
+}
+
+$username = $_SESSION['username'];
+
 if (!isset($conn)) {
     die("Error: Database connection object (\$conn) is not available.");
 }
@@ -9,6 +20,8 @@ $max_file_size = 5 * 1024 * 1024; // 5MB limit
 $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    // if (isset($_POST['action']) && $_POST['action'] == 'poblish') {
 
     $upload_successful = true;
 
@@ -53,6 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             if ($file_error !== UPLOAD_ERR_OK) {
                 $post_imagesErr = "File upload error for one or more files.";
+                // $error_message = "File upload error for one or more files.";
                 $upload_successful = false;
                 break;
             }
@@ -60,11 +74,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Check file type and size
             if ($file_size > $max_file_size) {
                 $post_imagesErr = "One or more images exceeded the 5MB size limit.";
+                // $error_message = "One or more images exceeded the 5MB size limit.";
                 $upload_successful = false;
                 break;
             }
             if (!in_array($file_type, $allowed_types)) {
                 $post_imagesErr = "Only JPG, PNG, and GIF images are allowed.";
+                // $error_message = "Only JPG, PNG, and GIF images are allowed.";
                 $upload_successful = false;
                 break;
             }
@@ -80,6 +96,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $uploaded_paths[] = $relative_path;
             } else {
                 $post_imagesErr = "Failed to move one or more uploaded files.";
+                // $error_message = "Failed to move one or more uploaded files.";
                 $upload_successful = false;
                 break;
             }
@@ -91,43 +108,49 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         // Validation check for empty files
         $post_imagesErr = "At least one image is required for the post.";
+        // $error_message = "At least one image is required for the post.";
         $upload_successful = false;
     }
 
 
-    $Categorries = isset($_POST["Categorries"]);
-    $Featured = isset($_POST['Featured']) ? 'Yes' : 'No';
-    $Tags = isset($_POST["Tags"]);
-    // Basic length check
+    $Categories = isset($_POST["Categories"]) ? $_POST["Categories"] : '';
+    $Featured = isset($_POST['Featured']) ? $_POST['Featured'] : '';
+    $Tags = test_input($_POST["Tags"]);
     if (strlen($Tags) > 255) {
         $TagErr = "Tag cannot exceed 255 characters.";
         $upload_successful = false;
     }
+    $published_by = $username;
 
     // --- 5. Insert Data into Database ---
     if ($upload_successful) {
 
         // SQL statement with placeholders
-        $sql = "INSERT INTO blog_post (title, content, image_path, date_posted, Categories, Tags, Featured	
-) VALUES (?, ?, ?, NOW(), ?, ?, ?)";
+        $sql = "INSERT INTO blog_post (title, content, image_path, date_posted, Categories, Tags, Featured, published_by	
+) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?)";
 
         // Prepare the statement
         if ($stmt = $conn->prepare($sql)) {
             // Bind parameters (s=string)
-            $stmt->bind_param("ssssss", $db_title, $db_content, $db_image_paths, $db_Categories, $db_Tags, $db_Featured);
+            $stmt->bind_param("sssssss", $db_title, $db_content, $db_image_paths, $db_Categories, $db_Tags, $db_Featured, $db_published_by);
 
             // Set parameters
             $db_title = $post_title;
             $db_content = $post_content;
             $db_image_paths = $image_paths_json;
-            $db_Categories =  $Categorries;
+            $db_Categories = $Categories;
             $db_Tags = $Tags;
             $db_Featured = $Featured;
+            $db_published_by = $published_by;
 
             // Execute the prepared statement
             if ($stmt->execute()) {
-                // Success: Redirect or show confirmation message
-                header("Location: Admin_dashboard.php?post_status=success");
+                header("Location: ../Admin/Admin_Post_Editor.php?post_status=success");
+                if ($success) {
+                    echo "success";
+                } else {
+                    echo "Error: " . $error_message;
+                }
                 exit();
             } else {
                 // Database execution error
