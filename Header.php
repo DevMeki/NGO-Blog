@@ -2,7 +2,7 @@
   class="sticky backdrop-blur-sm top-0 z-10 w-full bg-background-light/80 md:px-10 md:py-3 py-2 px-3 border-b border-gray-300">
   <div class="flex justify-between">
     <div class="flex justify-between gap-3 items-center">
-      <img src="./Assets/img/logo.png" class="size-7" alt="CINY Logo">
+      <img src="./Assets/img/logo xmas.png" class="size-7" alt="CINY Logo">
       <h2 class="text-2xl leading-tight tracking-[-0.015em] font-serif font-extrabold">C I N Y</h2>
     </div>
 
