@@ -67,7 +67,7 @@ try {
     error_log("Error fetching inquiries: " . $e->getMessage());
 }
 
-$conn->close();
+// $conn->close();
 ?>
 
 <!DOCTYPE html>

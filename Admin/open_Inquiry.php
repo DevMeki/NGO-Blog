@@ -36,19 +36,19 @@ try {
     $stmt->bind_param("i", $inquiry_id);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     if ($result->num_rows > 0) {
         $inquiry = $result->fetch_assoc();
     } else {
         $error = "Inquiry not found";
     }
     $stmt->close();
-    
+
 } catch (Exception $e) {
     $error = "Database error: " . $e->getMessage();
 }
 
-$conn->close();
+// $conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -64,9 +64,10 @@ $conn->close();
     <link rel="icon" href="../Assets/img/logo bg.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="../Assets/img/logo bg.png">
     <link rel="manifest" href="/site.webmanifest">
-    
+
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap"
+        rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <script>
         tailwind.config = {
@@ -125,9 +126,11 @@ $conn->close();
                         </a>
                         <!-- Breadcrumbs -->
                         <div class="flex flex-wrap gap-2">
-                            <a class="text-[#5f758c] dark:text-gray-400 text-sm font-medium leading-normal" href="#">Admin</a>
+                            <a class="text-[#5f758c] dark:text-gray-400 text-sm font-medium leading-normal"
+                                href="#">Admin</a>
                             <span class="text-[#5f758c] dark:text-gray-400 text-sm font-medium leading-normal">/</span>
-                            <a class="text-[#5f758c] dark:text-gray-400 text-sm font-medium leading-normal" href="Inquiries.php">Inquiries</a>
+                            <a class="text-[#5f758c] dark:text-gray-400 text-sm font-medium leading-normal"
+                                href="Inquiries.php">Inquiries</a>
                             <span class="text-[#5f758c] dark:text-gray-400 text-sm font-medium leading-normal">/</span>
                             <span class="text-[#111418] dark:text-white text-sm font-medium leading-normal">
                                 <?php echo htmlspecialchars($inquiry['Name'] ?? 'Unknown'); ?>
@@ -140,43 +143,55 @@ $conn->close();
                         <!-- Left Column: Details -->
                         <aside class="flex flex-col gap-6 lg:col-span-1">
                             <!-- Sender Details Card -->
-                            <div class="rounded-lg border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-background-dark p-6">
-                                <h3 class="text-[#111418] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] mb-4">
+                            <div
+                                class="rounded-lg border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-background-dark p-6">
+                                <h3
+                                    class="text-[#111418] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] mb-4">
                                     Sender Details</h3>
                                 <div class="grid grid-cols-1">
                                     <div class="border-t border-t-[#dbe0e6] dark:border-gray-700 py-4">
-                                        <p class="text-[#5f758c] dark:text-gray-400 text-xs font-normal leading-normal mb-1">
+                                        <p
+                                            class="text-[#5f758c] dark:text-gray-400 text-xs font-normal leading-normal mb-1">
                                             Full Name</p>
-                                        <p class="text-[#111418] dark:text-white text-sm font-medium leading-normal" id="senderName">
+                                        <p class="text-[#111418] dark:text-white text-sm font-medium leading-normal"
+                                            id="senderName">
                                             <?php echo htmlspecialchars($inquiry['Name'] ?? 'N/A'); ?>
                                         </p>
                                     </div>
                                     <div class="border-t border-t-[#dbe0e6] dark:border-gray-700 py-4">
-                                        <p class="text-[#5f758c] dark:text-gray-400 text-xs font-normal leading-normal mb-1">
+                                        <p
+                                            class="text-[#5f758c] dark:text-gray-400 text-xs font-normal leading-normal mb-1">
                                             Email Address</p>
-                                        <p class="text-[#111418] dark:text-white text-sm font-medium leading-normal" id="senderEmail">
+                                        <p class="text-[#111418] dark:text-white text-sm font-medium leading-normal"
+                                            id="senderEmail">
                                             <?php echo htmlspecialchars($inquiry['Email'] ?? 'N/A'); ?>
                                         </p>
                                     </div>
                                     <div class="border-t border-t-[#dbe0e6] dark:border-gray-700 py-4">
-                                        <p class="text-[#5f758c] dark:text-gray-400 text-xs font-normal leading-normal mb-1">
+                                        <p
+                                            class="text-[#5f758c] dark:text-gray-400 text-xs font-normal leading-normal mb-1">
                                             Inquiry ID</p>
-                                        <p class="text-[#111418] dark:text-white text-sm font-medium leading-normal" id="inquiryId">
+                                        <p class="text-[#111418] dark:text-white text-sm font-medium leading-normal"
+                                            id="inquiryId">
                                             #<?php echo htmlspecialchars($inquiry['Inquiry_id'] ?? 'N/A'); ?>
                                         </p>
                                     </div>
                                 </div>
                             </div>
                             <!-- Inquiry Details Card -->
-                            <div class="rounded-lg border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-background-dark p-6">
-                                <h3 class="text-[#111418] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] mb-4">
+                            <div
+                                class="rounded-lg border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-background-dark p-6">
+                                <h3
+                                    class="text-[#111418] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] mb-4">
                                     Inquiry Details</h3>
                                 <div class="grid grid-cols-1">
                                     <div class="border-t border-t-[#dbe0e6] dark:border-gray-700 py-4">
-                                        <p class="text-[#5f758c] dark:text-gray-400 text-xs font-normal leading-normal mb-1">
+                                        <p
+                                            class="text-[#5f758c] dark:text-gray-400 text-xs font-normal leading-normal mb-1">
                                             Date Received</p>
-                                        <p class="text-[#111418] dark:text-white text-sm font-medium leading-normal" id="dateSent">
-                                            <?php 
+                                        <p class="text-[#111418] dark:text-white text-sm font-medium leading-normal"
+                                            id="dateSent">
+                                            <?php
                                             if (isset($inquiry['Date_Sent'])) {
                                                 echo date('F j, Y', strtotime($inquiry['Date_Sent']));
                                             } else {
@@ -186,10 +201,11 @@ $conn->close();
                                         </p>
                                     </div>
                                     <div class="border-t border-t-[#dbe0e6] dark:border-gray-700 py-4">
-                                        <p class="text-[#5f758c] dark:text-gray-400 text-xs font-normal leading-normal mb-1">
+                                        <p
+                                            class="text-[#5f758c] dark:text-gray-400 text-xs font-normal leading-normal mb-1">
                                             Status</p>
                                         <span id="statusBadge" class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium 
-                                            <?php 
+                                            <?php
                                             $status = $inquiry['status'] ?? 'new';
                                             if ($status === 'read') {
                                                 echo 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300';
@@ -205,15 +221,19 @@ $conn->close();
                         </aside>
                         <!-- Right Column: Inquiry Message & Actions -->
                         <div class="lg:col-span-2">
-                            <div class="rounded-lg border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-background-dark">
+                            <div
+                                class="rounded-lg border border-[#dbe0e6] dark:border-gray-700 bg-white dark:bg-background-dark">
                                 <!-- Message Header -->
-                                <div class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between gap-4 p-6 border-b border-[#dbe0e6] dark:border-gray-700">
+                                <div
+                                    class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between gap-4 p-6 border-b border-[#dbe0e6] dark:border-gray-700">
                                     <div class="flex min-w-72 flex-col gap-1">
-                                        <p class="text-[#111418] dark:text-white text-2xl font-bold leading-tight tracking-[-0.02em]" id="inquirySubject">
+                                        <p class="text-[#111418] dark:text-white text-2xl font-bold leading-tight tracking-[-0.02em]"
+                                            id="inquirySubject">
                                             <?php echo htmlspecialchars($inquiry['Subject'] ?? 'No Subject'); ?>
                                         </p>
                                         <p class="text-[#5f758c] dark:text-gray-400 text-sm font-normal leading-normal">
-                                            Inquiry from <span id="displayName"><?php echo htmlspecialchars($inquiry['Name'] ?? 'Unknown'); ?></span>
+                                            Inquiry from <span
+                                                id="displayName"><?php echo htmlspecialchars($inquiry['Name'] ?? 'Unknown'); ?></span>
                                         </p>
                                     </div>
                                     <!-- Action Buttons -->
@@ -232,8 +252,9 @@ $conn->close();
                                 </div>
                                 <!-- Message Body -->
                                 <div class="p-6">
-                                    <div class="prose prose-sm dark:prose-invert max-w-none text-[#111418] dark:text-gray-300 leading-relaxed" id="inquiryMessage">
-                                        <?php 
+                                    <div class="prose prose-sm dark:prose-invert max-w-none text-[#111418] dark:text-gray-300 leading-relaxed"
+                                        id="inquiryMessage">
+                                        <?php
                                         if (isset($inquiry['Message'])) {
                                             // Convert line breaks to paragraphs for better formatting
                                             $message = htmlspecialchars($inquiry['Message']);
@@ -254,7 +275,9 @@ $conn->close();
     </div>
 
     <!-- Message Toast -->
-    <div id="toast" class="fixed top-4 right-4 p-4 rounded-lg text-white shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-50"></div>
+    <div id="toast"
+        class="fixed top-4 right-4 p-4 rounded-lg text-white shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-50">
+    </div>
 
     <script>
         // Inquiry data from PHP
@@ -272,10 +295,10 @@ $conn->close();
         function replyToInquiry() {
             const subject = `Re: ${inquiryData.subject}`;
             const body = `\n\n--- Original Message ---\nFrom: ${inquiryData.name} (${inquiryData.email})\nSent: ${inquiryData.dateSent}\nSubject: ${inquiryData.subject}\n\n${inquiryData.message}`;
-            
+
             const mailtoLink = `mailto:${inquiryData.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
             window.location.href = mailtoLink;
-            
+
             showToast('Opening email client...', 'info');
         }
 
@@ -288,22 +311,22 @@ $conn->close();
                         'Content-Type': 'application/json',
                     }
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showToast('Inquiry deleted successfully', 'success');
-                        // Redirect back to inquiries list after 2 seconds
-                        setTimeout(() => {
-                            window.location.href = 'Inquiries.php';
-                        }, 2000);
-                    } else {
-                        showToast('Failed to delete inquiry: ' + data.error, 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('Network error. Please try again.', 'error');
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('Inquiry deleted successfully', 'success');
+                            // Redirect back to inquiries list after 2 seconds
+                            setTimeout(() => {
+                                window.location.href = 'Inquiries.php';
+                            }, 2000);
+                        } else {
+                            showToast('Failed to delete inquiry: ' + data.error, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('Network error. Please try again.', 'error');
+                    });
             }
         }
 
@@ -311,12 +334,11 @@ $conn->close();
         function showToast(message, type) {
             const toast = document.getElementById('toast');
             toast.textContent = message;
-            toast.className = `fixed top-4 right-4 p-4 rounded-lg text-white shadow-lg transition-opacity duration-300 z-50 ${
-                type === 'success' ? 'bg-green-600' : 
-                type === 'error' ? 'bg-red-600' : 
-                'bg-blue-600'
-            } opacity-100`;
-            
+            toast.className = `fixed top-4 right-4 p-4 rounded-lg text-white shadow-lg transition-opacity duration-300 z-50 ${type === 'success' ? 'bg-green-600' :
+                    type === 'error' ? 'bg-red-600' :
+                        'bg-blue-600'
+                } opacity-100`;
+
             setTimeout(() => {
                 toast.classList.remove('opacity-100');
                 toast.classList.add('opacity-0');
@@ -329,7 +351,7 @@ $conn->close();
         }
 
         // Initialize page
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             console.log('Inquiry loaded:', inquiryData);
         });
     </script>
