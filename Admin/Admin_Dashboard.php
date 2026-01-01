@@ -126,9 +126,36 @@ if ($result) {
     error_log("This week visits query failed: " . $conn->error);
 }
 
-// Get visits for the last 4 weeks for the chart - REVISED ORDER (Week 4 oldest, Week 1 newest)
+// Get unique visitors for the last 4 weeks and comparison
+$unique_visitors = 0;
+$unique_visitors_change = '+0%';
+
+try {
+    $current_unique_res = $conn->query("SELECT COUNT(DISTINCT ip_address) as count FROM visitor_logs WHERE visit_time >= DATE_SUB(CURDATE(), INTERVAL 4 WEEK)");
+    $previous_unique_res = $conn->query("SELECT COUNT(DISTINCT ip_address) as count FROM visitor_logs WHERE visit_time >= DATE_SUB(CURDATE(), INTERVAL 8 WEEK) AND visit_time < DATE_SUB(CURDATE(), INTERVAL 4 WEEK)");
+
+    $unique_visitors = $current_unique_res ? $current_unique_res->fetch_assoc()['count'] ?? 0 : 0;
+    $previous_unique = $previous_unique_res ? $previous_unique_res->fetch_assoc()['count'] ?? 0 : 0;
+
+    $unique_visitors_change = calculatePercentageChange($unique_visitors, $previous_unique);
+} catch (Exception $e) {
+    error_log("Error calculating unique visitors: " . $e->getMessage());
+}
+
+// Get visits for the last 4 weeks for the chart - PRECISE MAPPING
 $weekly_visits = [0, 0, 0, 0];
-$week_labels = ['Week 4', 'Week 3', 'Week 2', 'Week 1'];
+$target_weeks = [];
+
+// Determine the target YEARWEEK values for the last 4 weeks (ending with current week)
+for ($i = 3; $i >= 0; $i--) {
+    $wk_res = $conn->query("SELECT YEARWEEK(DATE_SUB(CURDATE(), INTERVAL $i WEEK)) as wk");
+    if ($wk_res) {
+        $target_weeks[] = $wk_res->fetch_assoc()['wk'];
+    }
+}
+
+// target_weeks is now [oldest_wk, ..., current_wk]
+// Mapping: Index 0 -> Week 4 (Oldest), Index 3 -> Week 1 (Current)
 
 $sql = "SELECT 
             YEARWEEK(visit_time) as week_number,
@@ -136,25 +163,55 @@ $sql = "SELECT
         FROM visitor_logs 
         WHERE visit_time >= DATE_SUB(CURDATE(), INTERVAL 4 WEEK)
         GROUP BY YEARWEEK(visit_time)
-        ORDER BY week_number ASC 
-        LIMIT 4";
+        ORDER BY week_number ASC";
 
 $result = $conn->query($sql);
-if ($result && $result->num_rows > 0) {
-    $weeks_data = [];
+if ($result) {
     while ($row = $result->fetch_assoc()) {
-        $weeks_data[] = $row;
-    }
-
-    // Fill the array with data in correct order (Week 4 = oldest, Week 1 = newest)
-    $data_count = count($weeks_data);
-    for ($i = 0; $i < 4; $i++) {
-        if ($i < $data_count) {
-            $weekly_visits[3 - $i] = $weeks_data[$i]['visits'] ?? 0;
+        $idx = array_search($row['week_number'], $target_weeks);
+        if ($idx !== false) {
+            $weekly_visits[$idx] = (int) $row['visits'];
         }
     }
 } else {
-    error_log("Weekly visits query failed or no data: " . ($conn->error ?? 'No error'));
+    error_log("Weekly visits query failed: " . $conn->error);
+}
+
+// Get visits for the last 12 months for the second chart
+$monthly_visits = [];
+$monthly_labels = [];
+
+try {
+    // Generate the last 12 months (inclusive of current month)
+    for ($i = 11; $i >= 0; $i--) {
+        $month_res = $conn->query("SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL $i MONTH), '%Y-%m') as ym, DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL $i MONTH), '%b %y') as lbl");
+        if ($month_res) {
+            $row = $month_res->fetch_assoc();
+            $monthly_visits[$row['ym']] = 0;
+            $monthly_labels[] = $row['lbl'];
+        }
+    }
+
+    $sql_monthly = "SELECT 
+                        DATE_FORMAT(visit_time, '%Y-%m') as ym,
+                        COUNT(*) as count 
+                    FROM visitor_logs 
+                    WHERE visit_time >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 11 MONTH), '%Y-%m-01')
+                    GROUP BY ym 
+                    ORDER BY ym ASC";
+
+    $res_monthly = $conn->query($sql_monthly);
+    if ($res_monthly) {
+        while ($row = $res_monthly->fetch_assoc()) {
+            if (isset($monthly_visits[$row['ym']])) {
+                $monthly_visits[$row['ym']] = (int) $row['count'];
+            }
+        }
+    }
+    // Re-index for JSON usage
+    $monthly_visits = array_values($monthly_visits);
+} catch (Exception $e) {
+    error_log("Monthly visits calculation failed: " . $e->getMessage());
 }
 
 // If no real data, use proportional data based on this week's visits (Week 1 gets highest)
@@ -285,27 +342,24 @@ try {
                 margin-left: 0 !important;
                 padding: 1rem !important;
             }
-            
+
             .mobile-full-width {
                 width: 100% !important;
                 max-width: 100% !important;
             }
-            
+
             .mobile-stack {
                 flex-direction: column !important;
             }
-            
+
             .mobile-padding {
                 padding: 1rem !important;
             }
-            
+
             .mobile-text-center {
                 text-align: center !important;
             }
-            
-            .mobile-grid-1 {
-                grid-template-columns: 1fr !important;
-            }
+
         }
     </style>
 </head>
@@ -317,133 +371,193 @@ try {
             <!-- Mobile padding adjustment -->
             <main class="flex-1 ml-0 lg:ml-64 p-4 lg:p-8 mobile-margin">
                 <div class="max-w-7xl mx-auto mobile-full-width">
-                    <!-- Header Section - Stack on mobile -->
-                    <div class="flex flex-col lg:flex-row justify-between items-center gap-4 mb-8 mobile-stack">
-                        <div class="flex flex-col gap-1 mobile-text-center lg:text-left w-full lg:w-auto">
-                            <h1
-                                class="text-2xl lg:text-3xl font-black leading-tight tracking-[-0.033em] text-[#111418] dark:text-white">
-                                Welcome back, <?php echo htmlspecialchars($username); ?>!</h1>
-                            <p class="text-[#5f758c] dark:text-gray-400 text-sm lg:text-base font-normal leading-normal">
-                                Here's a quick overview of your website's activity.</p>
+                    <!-- Dashboard Header -->
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 lg:mb-10">
+                        <div>
+                            <h1 class="text-3xl lg:text-4xl font-black text-[#111418] dark:text-white tracking-tight">
+                                Dashboard
+                            </h1>
+                            <p class="text-[#5f758c] dark:text-gray-400 text-sm mt-1 font-medium italic">
+                                Welcome back, <span class="text-primary font-bold"><?php echo htmlspecialchars($username); ?></span>. Here's what's happening today.
+                            </p>
                         </div>
-                        <div class="relative">
-                            <button class="flex items-center gap-2">
-                                <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary"
-                                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCg1Z53prw3r7jvHrQ3BWX9HVYQGDUgb7H78xWoCUM5rEvg1XZKPtvuf3Nq6KnY61EdHLyf-t-DGB5dhOXc_JwnoKAOtBkCgoVcuDQv-_IVN_ZNLrv7xbvf2kYv_XC854fjuW-FhKCmKRXHr_PtkDatlihusYBLIfPtnjyY26cUn-lSruOeCWXggGBz0ORQ4lbIYFAwzp6nGAg1I2wG21Ir6N5WaH3jOI_m04KZfWDwWReWdV-I-qiqUZX4WQhUOWwEJLsRq2ll7fkH");'>
-                                </div>
-                            </button>
+                        <div class="flex items-center gap-3 bg-white dark:bg-[#1a2633] px-4 py-2 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm self-start md:self-auto">
+                            <div class="size-2 bg-success rounded-full animate-pulse"></div>
+                            <span class="text-xs font-bold text-[#111418] dark:text-white uppercase tracking-widest">Systems Online</span>
                         </div>
                     </div>
 
-                    <!-- Stats Cards - Stack on mobile -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8 mobile-grid-1">
-                        <div
-                            class="flex flex-col gap-2 rounded-lg p-4 lg:p-6 bg-white dark:bg-[#1a2633] border border-gray-200 dark:border-gray-700">
-                            <p class="text-[#111418] dark:text-white text-sm lg:text-base font-medium leading-normal">Total Posts
-                            </p>
-                            <p class="text-[#111418] dark:text-white tracking-light text-3xl lg:text-4xl font-bold leading-tight">
-                                <?php echo number_format($total_posts); ?>
-                            </p>
-                            <p class="text-success text-sm lg:text-base font-medium leading-normal"><?php echo $posts_change; ?>
-                                from last month</p>
+                    <!-- Stats Cards (KPIs) - 4-Column Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
+                        <!-- Total Page Visits -->
+                        <div class="flex flex-col gap-2 rounded-xl p-4 lg:p-6 bg-white dark:bg-[#1a2633] border border-gray-100 dark:border-gray-800 shadow-sm">
+                            <p class="text-[#5f758c] dark:text-gray-400 text-xs lg:text-sm font-semibold uppercase tracking-wider">Total Page Visits</p>
+                            <div class="flex items-baseline gap-2">
+                                <p class="text-[#111418] dark:text-white text-2xl lg:text-3xl font-black"><?php echo number_format($total_visits); ?></p>
+                                <span class="text-success text-xs font-bold"><?php echo $visits_change; ?></span>
+                            </div>
+                            <p class="text-[#5f758c] dark:text-gray-500 text-xs">Total cumulative visits</p>
                         </div>
-                        <!-- Removed Views card -->
-                        <div
-                            class="flex flex-col gap-2 rounded-lg p-4 lg:p-6 bg-white dark:bg-[#1a2633] border border-gray-200 dark:border-gray-700">
-                            <p class="text-[#111418] dark:text-white text-sm lg:text-base font-medium leading-normal">Total Page
-                                Visits</p>
-                            <p class="text-[#111418] dark:text-white tracking-light text-3xl lg:text-4xl font-bold leading-tight">
-                                <?php echo number_format($total_visits); ?>
-                            </p>
-                            <p class="text-success text-sm lg:text-base font-medium leading-normal"><?php echo $visits_change; ?>
-                                from last month</p>
+
+                        <!-- Unique Visitors -->
+                        <div class="flex flex-col gap-2 rounded-xl p-4 lg:p-6 bg-white dark:bg-[#1a2633] border border-gray-100 dark:border-gray-800 shadow-sm">
+                            <p class="text-[#5f758c] dark:text-gray-400 text-xs lg:text-sm font-semibold uppercase tracking-wider">Unique Visitors</p>
+                            <div class="flex items-baseline gap-2">
+                                <p class="text-[#111418] dark:text-white text-2xl lg:text-3xl font-black"><?php echo number_format($unique_visitors); ?></p>
+                                <span class="text-success text-xs font-bold"><?php echo $unique_visitors_change; ?></span>
+                            </div>
+                            <p class="text-[#5f758c] dark:text-gray-500 text-xs">Last 30 days active</p>
+                        </div>
+
+                        <!-- Total Posts -->
+                        <div class="flex flex-col gap-2 rounded-xl p-4 lg:p-6 bg-white dark:bg-[#1a2633] border border-gray-100 dark:border-gray-800 shadow-sm">
+                            <p class="text-[#5f758c] dark:text-gray-400 text-xs lg:text-sm font-semibold uppercase tracking-wider">Live Posts</p>
+                            <div class="flex items-baseline gap-2">
+                                <p class="text-[#111418] dark:text-white text-2xl lg:text-3xl font-black"><?php echo number_format($total_posts); ?></p>
+                                <span class="text-success text-xs font-bold"><?php echo $posts_change; ?></span>
+                            </div>
+                            <p class="text-[#5f758c] dark:text-gray-500 text-xs">Published on blog</p>
+                        </div>
+
+                        <!-- Total Inquiries -->
+                        <div class="flex flex-col gap-2 rounded-xl p-4 lg:p-6 bg-white dark:bg-[#1a2633] border border-gray-100 dark:border-gray-800 shadow-sm">
+                            <p class="text-[#5f758c] dark:text-gray-400 text-xs lg:text-sm font-semibold uppercase tracking-wider">Inquiries</p>
+                            <div class="flex items-baseline gap-2">
+                                <p class="text-[#111418] dark:text-white text-2xl lg:text-3xl font-black"><?php echo number_format($total_inquiries); ?></p>
+                                <span class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px] font-bold">NEW</span>
+                            </div>
+                            <p class="text-[#5f758c] dark:text-gray-500 text-xs">Messages & Donations</p>
                         </div>
                     </div>
 
-                    <!-- Main Content - Stack on mobile -->
-                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 lg:gap-6 mobile-grid-1">
-                        <!-- Chart Section - Full width on mobile -->
-                        <div
-                            class="xl:col-span-2 flex flex-col gap-4 rounded-lg border border-gray-200 dark:border-gray-700 p-4 lg:p-6 bg-white dark:bg-[#1a2633]">
-                            <div class="flex flex-col">
-                                <p class="text-[#111418] dark:text-white text-base lg:text-lg font-medium leading-normal">Website
-                                    Visits - Last 4 Weeks</p>
-                                <p
-                                    class="text-[#111418] dark:text-white tracking-light text-2xl lg:text-4xl font-bold leading-tight truncate">
-                                    <?php echo number_format(array_sum($weekly_visits)); ?> visits
-                                </p>
-                                <div class="flex gap-1 flex-wrap">
-                                    <p class="text-[#5f758c] dark:text-gray-400 text-sm lg:text-base font-normal leading-normal">
-                                        Last 4 Weeks</p>
-                                    <p class="text-success text-sm lg:text-base font-medium leading-normal">
-                                        <?php echo $visits_change; ?></p>
+                    <!-- Main Content Layout - Two Columns -->
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
+
+                        <!-- Left Column: Detailed Analytics -->
+                        <div class="xl:col-span-2 space-y-6 lg:space-y-8">
+                            <!-- Annual Visits Trend -->
+                            <div
+                                class="flex flex-col gap-6 rounded-xl border border-gray-100 dark:border-gray-800 p-6 lg:p-8 bg-white dark:bg-[#1a2633] shadow-sm">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h2 class="text-[#111418] dark:text-white text-lg lg:text-xl font-bold">Annual
+                                            Traffic Trend</h2>
+                                        <p class="text-[#5f758c] dark:text-gray-400 text-sm">Monthly visit distribution
+                                            over the last 12 months</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-[#111418] dark:text-white text-2xl font-black">
+                                            <?php echo number_format(array_sum($monthly_visits)); ?></p>
+                                        <p
+                                            class="text-[#5f758c] dark:text-gray-500 text-[10px] uppercase font-bold tracking-tighter">
+                                            Yearly Total</p>
+                                    </div>
+                                </div>
+                                <div class="h-[250px] lg:h-[300px] w-full">
+                                    <canvas id="yearlyVisitsChart"></canvas>
                                 </div>
                             </div>
-                            <div class="flex min-h-[200px] lg:min-h-[250px] flex-1 flex-col gap-4 lg:gap-8 py-2 lg:py-4">
-                                <canvas id="visitsChart"></canvas>
+
+                            <!-- Weekly Breakdown -->
+                            <div
+                                class="flex flex-col gap-6 rounded-xl border border-gray-100 dark:border-gray-800 p-6 lg:p-8 bg-white dark:bg-[#1a2633] shadow-sm">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h2 class="text-[#111418] dark:text-white text-lg lg:text-xl font-bold">Recent
+                                            Activity Analysis</h2>
+                                        <p class="text-[#5f758c] dark:text-gray-400 text-sm">Granular weekly breakdown
+                                            for the last 4 weeks</p>
+                                    </div>
+                                    <div
+                                        class="flex items-center gap-2 px-3 py-1 bg-success/10 text-success rounded-full text-xs font-bold">
+                                        <span class="size-2 bg-success rounded-full animate-pulse"></span>
+                                        LIVE TREND
+                                    </div>
+                                </div>
+                                <div class="h-[200px] lg:h-[250px] w-full">
+                                    <canvas id="visitsChart"></canvas>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Sidebar Section - Full width on mobile -->
-                        <div class="flex flex-col gap-4 lg:gap-6">
+                        <!-- Right Column: Sidebar Management -->
+                        <div class="space-y-6 lg:space-y-8">
                             <!-- Recent Posts -->
                             <div
-                                class="flex flex-col gap-4 rounded-lg border border-gray-200 dark:border-gray-700 p-4 lg:p-6 bg-white dark:bg-[#1a2633]">
-                                <div class="flex justify-between items-center">
-                                    <h3 class="text-[#111418] dark:text-white font-medium">Recent Posts</h3>
-                                    <a class="text-sm text-primary hover:underline" href="List_post.php">View All</a>
+                                class="flex flex-col rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a2633] shadow-sm overflow-hidden">
+                                <div
+                                    class="p-6 border-b border-gray-50 dark:border-gray-800 flex justify-between items-center">
+                                    <h3 class="text-[#111418] dark:text-white font-bold italic">Recent Content</h3>
+                                    <a class="text-xs font-bold text-primary flex items-center gap-1 hover:gap-2 transition-all"
+                                        href="List_post.php">
+                                        VIEW ALL <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                    </a>
                                 </div>
-                                <div class="space-y-3 lg:space-y-4">
+                                <div class="p-6 space-y-5">
                                     <?php if (!empty($blog_posts)): ?>
                                         <?php foreach ($blog_posts as $post): ?>
-                                            <div class="flex flex-col">
-                                                <p class="font-medium text-[#111418] dark:text-white truncate text-sm lg:text-base">
+                                            <div class="group cursor-pointer">
+                                                <p
+                                                    class="font-bold text-[#111418] dark:text-white group-hover:text-primary transition-colors truncate text-sm">
                                                     <?php echo htmlspecialchars($post['Title'] ?? 'No Title'); ?>
                                                 </p>
-                                                <p class="text-xs lg:text-sm text-[#5f758c] dark:text-gray-400">
-                                                    by <?php echo htmlspecialchars($post['published_by'] ?? 'Unknown'); ?> -
-                                                    <?php echo date('M j', strtotime($post['Date_posted'] ?? 'now')); ?>
-                                                </p>
+                                                <div class="flex items-center gap-2 mt-1">
+                                                    <span
+                                                        class="text-[10px] bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-gray-500">
+                                                        <?php echo htmlspecialchars($post['Categories'] ?? 'Post'); ?>
+                                                    </span>
+                                                    <p class="text-[11px] text-[#5f758c] dark:text-gray-500 font-medium">
+                                                        <?php echo date('M j, Y', strtotime($post['Date_posted'] ?? 'now')); ?>
+                                                    </p>
+                                                </div>
                                             </div>
                                         <?php endforeach; ?>
                                     <?php else: ?>
-                                        <p class="text-[#5f758c] dark:text-gray-400 text-sm">No posts found in database</p>
+                                        <div class="text-center py-4">
+                                            <p class="text-[#5f758c] dark:text-gray-500 text-sm">No recent posts found</p>
+                                        </div>
                                     <?php endif; ?>
                                 </div>
                             </div>
 
-                            <!-- Quick Stats -->
+                            <!-- Dashboard Quick Insights -->
                             <div
-                                class="flex flex-col gap-4 rounded-lg border border-gray-200 dark:border-gray-700 p-4 lg:p-6 bg-white dark:bg-[#1a2633]">
-                                <div class="flex justify-between items-center">
-                                    <h3 class="text-[#111418] dark:text-white font-medium">Quick Stats</h3>
+                                class="flex flex-col rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a2633] shadow-sm p-6">
+                                <h3 class="text-[#111418] dark:text-white font-bold italic mb-6">Quick Insights</h3>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div
+                                        class="p-3 rounded-lg bg-background-light dark:bg-background-dark/50 border border-gray-50 dark:border-gray-800">
+                                        <p class="text-[10px] font-bold text-gray-400 uppercase">Today</p>
+                                        <p class="text-lg font-black text-[#111418] dark:text-white">
+                                            <?php echo number_format($today_visits); ?></p>
+                                        <p class="text-[9px] text-gray-500">Peak Visits</p>
+                                    </div>
+                                    <div
+                                        class="p-3 rounded-lg bg-background-light dark:bg-background-dark/50 border border-gray-50 dark:border-gray-800">
+                                        <p class="text-[10px] font-bold text-gray-400 uppercase">Drafts</p>
+                                        <p class="text-lg font-black text-[#111418] dark:text-white">
+                                            <?php echo number_format($total_drafts); ?></p>
+                                        <p class="text-[9px] text-gray-500">To Review</p>
+                                    </div>
+                                    <div
+                                        class="p-3 rounded-lg bg-background-light dark:bg-background-dark/50 border border-gray-50 dark:border-gray-800">
+                                        <p class="text-[10px] font-bold text-gray-400 uppercase">Weekly</p>
+                                        <p class="text-lg font-black text-[#111418] dark:text-white">
+                                            <?php echo number_format($this_week_visits); ?></p>
+                                        <p class="text-[9px] text-gray-500">This Week</p>
+                                    </div>
+                                    <div
+                                        class="p-3 rounded-lg bg-background-light dark:bg-background-dark/50 border border-gray-50 dark:border-gray-800">
+                                        <p class="text-[10px] font-bold text-gray-400 uppercase">Status</p>
+                                        <p class="text-sm font-black text-success mt-1 uppercase tracking-tighter">
+                                            Healthy</p>
+                                        <p class="text-[9px] text-gray-500">Live Services</p>
+                                    </div>
                                 </div>
-                                <div class="space-y-3 lg:space-y-4">
-                                    <div class="flex flex-col">
-                                        <p class="text-xs lg:text-sm text-[#5f758c] dark:text-gray-400">Today's Visits</p>
-                                        <p class="font-medium text-[#111418] dark:text-white text-base lg:text-lg">
-                                            <?php echo number_format($today_visits); ?>
-                                        </p>
-                                    </div>
-                                    <div class="flex flex-col">
-                                        <p class="text-xs lg:text-sm text-[#5f758c] dark:text-gray-400">This Week's Visits</p>
-                                        <p class="font-medium text-[#111418] dark:text-white text-base lg:text-lg">
-                                            <?php echo number_format($this_week_visits); ?>
-                                        </p>
-                                    </div>
-                                    <div class="flex flex-col">
-                                        <p class="text-xs lg:text-sm text-[#5f758c] dark:text-gray-400">Drafts</p>
-                                        <p class="font-medium text-[#111418] dark:text-white text-base lg:text-lg">
-                                            <?php echo number_format($total_drafts); ?>
-                                        </p>
-                                    </div>
-                                    <div class="flex flex-col">
-                                        <p class="text-xs lg:text-sm text-[#5f758c] dark:text-gray-400">Inquiries</p>
-                                        <p class="font-medium text-[#111418] dark:text-white text-base lg:text-lg">
-                                            <?php echo number_format($total_inquiries); ?>
-                                        </p>
-                                    </div>
-                                </div>
+                                <button onclick="window.location.reload()"
+                                    class="w-full mt-6 py-2.5 rounded-lg bg-primary text-white text-xs font-bold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-sm">refresh</span> REFRESH DASHBOARD
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -511,7 +625,7 @@ try {
                     }
                 }
             });
-            
+
             // Mobile responsive adjustments for the chart
             function adjustChartForMobile() {
                 if (window.innerWidth < 768) {
@@ -529,12 +643,59 @@ try {
                 }
                 visitsChart.update();
             }
-            
+
             // Initial adjustment
             adjustChartForMobile();
-            
+
             // Adjust on resize
             window.addEventListener('resize', adjustChartForMobile);
+
+            // Yearly Chart Implementation
+            const yearlyCtx = document.getElementById('yearlyVisitsChart').getContext('2d');
+            const monthlyLabels = <?php echo json_encode($monthly_labels); ?>;
+            const monthlyData = <?php echo json_encode($monthly_visits); ?>;
+
+            const yearlyVisitsChart = new Chart(yearlyCtx, {
+                type: 'bar',
+                data: {
+                    labels: monthlyLabels,
+                    datasets: [{
+                        label: 'Monthly Visits',
+                        data: monthlyData,
+                        backgroundColor: '#10B981', // Success color
+                        borderRadius: 4,
+                        barThickness: 'flex'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return `Visits: ${context.parsed.y.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                            ticks: {
+                                callback: function (value) { return value.toLocaleString(); },
+                                font: { size: 11 }
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 10 } }
+                        }
+                    }
+                }
+            });
         });
     </script>
 </body>

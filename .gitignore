@@ -1,0 +1,6 @@
+ciny_db.sql
+.env
+/vendor/
+/node_modules/
+.DS_Store
+Thumbs.db
