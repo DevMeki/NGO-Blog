@@ -588,6 +588,10 @@ require_once 'Backend/track_visits.php';
               <i class="bi bi-envelope"></i>
               <span>Contact Us</span>
             </a>
+            <!-- <a href="get-involved.php" class="bg-white text-primary font-semibold px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors inline-flex items-center justify-center gap-2 border border-primary">
+                            <i class="bi bi-people"></i>
+                            <span>Get Involved</span>
+                        </a> -->
           </div>
         </section>
 
