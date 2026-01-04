@@ -171,12 +171,71 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
     }
 
     // REAL DATABASE OPERATION
+    // First, fetch the post to get image paths before deleting
+    $fetch_sql = "SELECT Image_path FROM blog_post WHERE post_id = ?";
+    $image_paths = [];
+    if ($fetch_stmt = $conn->prepare($fetch_sql)) {
+        $fetch_stmt->bind_param("i", $post_id);
+        if ($fetch_stmt->execute()) {
+            $fetch_result = $fetch_stmt->get_result();
+            if ($row = $fetch_result->fetch_assoc()) {
+                $image_paths = json_decode($row['Image_path'] ?? '[]', true) ?: [];
+            }
+        }
+        $fetch_stmt->close();
+    }
+
+    // Fetch video paths from post_videos table
+    $video_paths = [];
+    $video_fetch_sql = "SELECT video_path FROM post_videos WHERE post_id = ?";
+    if ($video_stmt = $conn->prepare($video_fetch_sql)) {
+        $video_stmt->bind_param("i", $post_id);
+        if ($video_stmt->execute()) {
+            $video_result = $video_stmt->get_result();
+            while ($row = $video_result->fetch_assoc()) {
+                $video_paths[] = $row['video_path'];
+            }
+        }
+        $video_stmt->close();
+    }
+
+    // Delete associated media files (images and videos)
+    $files_deleted = 0;
+    $files_failed = 0;
+    $upload_dir = dirname(__DIR__) . '/Assets/uploads/'; // Absolute path to uploads directory
+
+    // Combine all media paths (images and videos)
+    $all_media_paths = array_merge($image_paths, $video_paths);
+
+    foreach ($all_media_paths as $media_path) {
+        // Extract filename from relative path (e.g., "Assets/uploads/filename.jpg" -> "filename.jpg")
+        $filename = basename($media_path);
+        $full_path = $upload_dir . $filename;
+
+        if (file_exists($full_path)) {
+            if (unlink($full_path)) {
+                $files_deleted++;
+            } else {
+                $files_failed++;
+                error_log("Failed to delete file: " . $full_path);
+            }
+        }
+    }
+
+    // Now delete the post from database
     $sql = "DELETE FROM blog_post WHERE post_id = ?";
     if ($stmt = $conn->prepare($sql)) {
         $stmt->bind_param("i", $post_id);
         if ($stmt->execute()) {
             if ($stmt->affected_rows > 0) {
-                echo json_encode(['success' => true, 'message' => "Post deleted successfully."]);
+                $message = "Post deleted successfully.";
+                if ($files_deleted > 0) {
+                    $message .= " {$files_deleted} media file(s) deleted.";
+                }
+                if ($files_failed > 0) {
+                    $message .= " {$files_failed} media file(s) could not be deleted.";
+                }
+                echo json_encode(['success' => true, 'message' => $message]);
             } else {
                 http_response_code(404);
                 echo json_encode(['success' => false, 'error' => "Post not found or already deleted."]);

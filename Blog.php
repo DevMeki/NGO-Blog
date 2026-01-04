@@ -20,8 +20,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['search_action']) && $
       exit();
     }
 
-    $sql = "SELECT post_id, title, content, image_path, date_posted, Categories, published_by 
-                FROM blog_post 
+    $sql = "SELECT bp.post_id, bp.title, bp.content, bp.image_path, bp.date_posted, bp.Categories, bp.published_by, GROUP_CONCAT(pv.video_path) as video_paths 
+                FROM blog_post bp
+                LEFT JOIN post_videos pv ON bp.post_id = pv.post_id 
                 WHERE 1=1";
 
     $params = [];
@@ -40,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['search_action']) && $
       $types .= 's';
     }
 
-    $sql .= " ORDER BY date_posted DESC LIMIT 20";
+    $sql .= " GROUP BY bp.post_id ORDER BY bp.date_posted DESC LIMIT 20";
 
     $stmt = $conn->prepare($sql);
 

@@ -123,7 +123,7 @@ if (isset($conn) && $conn instanceof mysqli && @$conn->ping()) {
     </div>
 
     <div class="mt-20">
-        <a href="Admin_post_Editor.php">
+        <a href="Admin_Post_Editor.php">
             <button
                 class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90">
                 <span class="truncate">New Post</span>

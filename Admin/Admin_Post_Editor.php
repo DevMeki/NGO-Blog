@@ -302,8 +302,8 @@ if (isset($_GET['error'])) {
                                     <select id="categories_select"
                                         class="mt-1 form-select p-2 w-full rounded-lg border border-[#dbe0e6] bg-white focus:border-orange-600 dark:focus:border-orange-600">
                                         <option value="Announcements" <?php echo ($Categories == 'Announcements') ? 'selected' : ''; ?>>Announcements</option>
-                                        <option value="Product Updates" <?php echo ($Categories == 'Product Updates') ? 'selected' : ''; ?>>Product Updates</option>
-                                        <option value="Company News" <?php echo ($Categories == 'Company News') ? 'selected' : ''; ?>>Company News</option>
+                                        <option value="Product Updates" <?php echo ($Categories == 'Project Updates') ? 'selected' : ''; ?>>Product Updates</option>
+                                        <option value="Company News" <?php echo ($Categories == 'Orgnisation News') ? 'selected' : ''; ?>>Company News</option>
                                     </select>
                                 </div>
                                 <div>

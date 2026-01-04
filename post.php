@@ -203,14 +203,20 @@ if (empty($posts) && $conn->error) {
                             <div class="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden h-[400px] md:h-[500px] relative bg-black"
                                 data-alt="<?php echo htmlspecialchars($post['Title']); ?>">
                                 <?php if (!empty($image_paths)): ?>
-                                    <img src="<?php echo $hero_image_url; ?>"
-                                        class="w-full h-full object-contain rounded-lg transition duration-300 hover:opacity-90">
+                                    <a href="<?php echo $hero_image_url; ?>" class="lightbox-trigger block w-full h-full">
+                                        <img src="<?php echo $hero_image_url; ?>"
+                                            class="w-full h-full object-contain rounded-lg transition duration-300 hover:opacity-90 cursor-pointer"
+                                            alt="<?php echo htmlspecialchars($post['Title']); ?>">
+                                    </a>
                                 <?php elseif (!empty($video_paths)): ?>
                                     <video src="<?php echo htmlspecialchars($video_paths[0]); ?>" controls
                                         class="w-full h-full object-contain rounded-lg"></video>
                                 <?php else: ?>
-                                    <img src="<?php echo $hero_image_url; ?>"
-                                        class="w-full h-full object-contain rounded-lg transition duration-300 hover:opacity-90">
+                                    <a href="<?php echo $hero_image_url; ?>" class="lightbox-trigger block w-full h-full">
+                                        <img src="<?php echo $hero_image_url; ?>"
+                                            class="w-full h-full object-contain rounded-lg transition duration-300 hover:opacity-90 cursor-pointer"
+                                            alt="<?php echo htmlspecialchars($post['Title']); ?>">
+                                    </a>
                                 <?php endif; ?>
                             </div>
                             <!-- Article Body -->
@@ -254,33 +260,68 @@ if (empty($posts) && $conn->error) {
                                         <?php foreach ($other_images as $image_url): ?>
                                             <div
                                                 class="rounded-lg overflow-hidden shadow-lg border border-gray-100 h-[300px] bg-black">
-                                                <img src="<?php echo htmlspecialchars($image_url); ?>"
-                                                    class="w-full h-full object-contain rounded-lg transition duration-300 hover:opacity-90"
-                                                    onerror="this.onerror = null; this.src='https://placehold.co/600x400/cccccc/333333?text=Image+Unavailable';" />
+                                                <a href="<?php echo htmlspecialchars($image_url); ?>" class="lightbox-trigger block w-full h-full">
+                                                    <img src="<?php echo htmlspecialchars($image_url); ?>"
+                                                        class="w-full h-full object-contain rounded-lg transition duration-300 hover:opacity-90 cursor-pointer"
+                                                        onerror="this.onerror = null; this.src='https://placehold.co/600x400/cccccc/333333?text=Image+Unavailable';" />
+                                                </a>
                                             </div>
                                         <?php endforeach; ?>
                                     </div>
                                 </div>
                             <?php endif; ?>
-                            <!-- Social Share & Author Bio -->
+                            <!-- Social Share -->
                             <div class="px-6 md:px-8 pb-8">
                                 <!-- Social Share -->
                                 <div class="flex items-center gap-4 py-6 border-t border-b border-gray-200">
-                                    <span class="text-sm font-semibold text-gray-600 ">Share this post:</span>
+                                    <span class="text-sm font-semibold text-gray-600">Share this post:</span>
                                     <div class="flex gap-2">
-                                        <a class="flex items-center justify-center size-8 rounded-full bg-gray-100 hover:bg-orange-200 transition-colors"
-                                            data-alt="Share on Twitter" href="#"><img alt="Twitter icon"
-                                                class="h-4 w-4 dark:invert"
-                                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBV--YnlXJr67010cgWnogREFXVpRuGhDYG3wc7FEImH1r25iKl6p9sLnTzwtBpDkHIJieZwH1LmCOPHR8JAPJjOxl_HFGZsj9Zn-07xED2RpLUcrm0lAu8te3pWjEjmN7EkdKPSFca-xexvTBrNmUGILIVJX7rHg-ivY9k0Y0OIjrZqv_CCd7-GL58zrvZUv-oKi6MdwgLAWHHTymd_D1gd83dhc0tn-SjfS4VdKtelVt147TDnU5hB37plS4LPFHOuDsliGS_EXcY" /></a>
-                                        <a class="flex items-center justify-center size-8 rounded-full bg-gray-100 hover:bg-orange-200 transition-colors"
-                                            data-alt="Share on Facebook" href="#"><img alt="Facebook icon"
-                                                class="h-4 w-4 dark:invert"
-                                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuARYMMh77n-5mOn5zpdovTyWPcbQ7ahJ_TP0GGOMwOPf9mXIWU8VOZmVB7775DnDIvWtZXKPZg_qNR0wlVRdvyq3MQCJHKnG2RNuSALbO1wi90aNNBDUXHVOFFDzILZno58JzsUEN-xGgMH935aldEEJtz7qmBj4Hn3Aytuhy9DK4QnEwbdsrm599i9uqg9JtqrU6Bz87mTgBixbFwGE-OeQkMypK9k6NJaoYVQoHWAPhqVnhTXl-1BSFAiedm1FUA3w1LBIV8hpVI3" /></a>
-                                        <a class="flex items-center justify-center size-8 rounded-full bg-gray-100 hover:bg-orange-200 transition-colors"
-                                            data-alt="Share on LinkedIn" href="#"><img alt="LinkedIn icon"
-                                                class="h-4 w-4 dark:invert"
-                                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuACPHE9pjOzROmnVsZ5IgZENsELjeN00j-0h6qUYlKAZsgsxEh8xzs02KQv8xfbjHa2kewNRsjCIujx3IPPjyFd01SIlSs7hMnKLIj4boh4RqaqhX_t4HZzMpwWcyNWLQJ6NB-XP-N9A-JbXCL-JtxV3a3kkE5fZ_96mayGbYTU1EXQH432ckWDOBRVumflE11PwDl1xzom6xvqbPE1MdtPcFqIIJEgmGqmF1ibgLRUCxJcXU3PpOC9eUkRk_k_R4PJNLslcbF7CVE9" /></a>
+                                        <!-- Twitter/X -->
+                                        <a class="flex items-center justify-center size-10 rounded-full bg-gray-100 hover:bg-blue-500 hover:text-white transition-colors duration-200"
+                                            data-alt="Share on Twitter/X"
+                                            href="https://twitter.com/intent/tweet?url=<?php echo urlencode('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']); ?>&text=<?php echo urlencode($post['Title'] ?? 'Check out this post'); ?>"
+                                            target="_blank"
+                                            rel="noopener noreferrer">
+                                            <i class="bi bi-twitter-x text-lg"></i>
+                                        </a>
+
+                                        <!-- Facebook -->
+                                        <a class="flex items-center justify-center size-10 rounded-full bg-gray-100 hover:bg-blue-600 hover:text-white transition-colors duration-200"
+                                            data-alt="Share on Facebook"
+                                            href="https://www.facebook.com/sharer/sharer.php?u=<?php echo urlencode('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']); ?>"
+                                            target="_blank"
+                                            rel="noopener noreferrer">
+                                            <i class="bi bi-facebook text-lg"></i>
+                                        </a>
+
+                                        <!-- LinkedIn -->
+                                        <a class="flex items-center justify-center size-10 rounded-full bg-gray-100 hover:bg-blue-700 hover:text-white transition-colors duration-200"
+                                            data-alt="Share on LinkedIn"
+                                            href="https://www.linkedin.com/sharing/share-offsite/?url=<?php echo urlencode('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']); ?>"
+                                            target="_blank"
+                                            rel="noopener noreferrer">
+                                            <i class="bi bi-linkedin text-lg"></i>
+                                        </a>
+
+                                        <!-- WhatsApp -->
+                                        <button class="flex items-center justify-center size-10 rounded-full bg-gray-100 hover:bg-green-500 hover:text-white transition-colors duration-200 whatsapp-share-btn"
+                                                data-alt="Share on WhatsApp"
+                                                type="button">
+                                            <i class="bi bi-whatsapp text-lg"></i>
+                                        </button>
+
+                                        <!-- Copy Link -->
+                                        <button class="flex items-center justify-center size-10 rounded-full bg-gray-100 hover:bg-gray-600 hover:text-white transition-colors duration-200 copy-link-btn"
+                                                data-alt="Copy Link"
+                                                type="button">
+                                            <i class="bi bi-link-45deg text-lg"></i>
+                                        </button>
                                     </div>
+                                </div>
+
+                                <!-- Copy Success Message -->
+                                <div id="copy-success" class="hidden mt-2 text-sm text-green-600 font-medium">
+                                    <i class="bi bi-check-circle-fill mr-1"></i>Link copied to clipboard!
                                 </div>
                             </div>
                         </article>
@@ -288,7 +329,7 @@ if (empty($posts) && $conn->error) {
                     <!-- Sidebar Column -->
                     <aside class="w-full lg:w-1/3 space-y-8 lg:sticky lg:top-28 lg:self-start">
                         <!-- Search Bar -->
-                        <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <!-- <div class="bg-white p-6 rounded-lg shadow-sm">
                             <h4 class="text-lg font-bold mb-4 text-[#111418]">Search</h4>
                             <div class="flex w-full flex-1 items-stretch rounded-lg h-full border-2 border-blue-200">
                                 <div
@@ -305,9 +346,9 @@ if (empty($posts) && $conn->error) {
                                     class="form-input flex h-10 w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-800 focus:outline-2 focus:ring-1 bg-white focus:border-1 placeholder:text-gray-600 px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal"
                                     placeholder="Search for articles..." value="" />
                             </div>
-                        </div>
+                        </div> -->
                         <!-- Categories -->
-                        <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <!-- <div class="bg-white p-6 rounded-lg shadow-sm">
                             <h4 class="text-lg font-bold mb-4 text-[#111418]">Categories</h4>
                             <ul class="space-y-2">
                                 <li><a class="text-gray-600 hover:text-blue-600" href="#">Artificial Intelligence</a></li>
@@ -316,7 +357,7 @@ if (empty($posts) && $conn->error) {
                                 <li><a class="text-gray-600 hover:text-blue-600" href="#">Technology</a></li>
                                 <li><a class="text-gray-600 hover:text-blue-600" href="#">Future of Work</a></li>
                             </ul>
-                        </div>
+                        </div> -->
                         <!-- Recent Posts -->
                         <div class="bg-white p-6 rounded-lg shadow-sm">
                             <h4 class="text-lg font-bold mb-4 text-[#111418]">Recent Posts</h4>
@@ -354,6 +395,112 @@ if (empty($posts) && $conn->error) {
         <?php
         include 'footer.php';
         ?>
+
+        <!-- Lightbox Modal -->
+        <div id="lightbox-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+            <div class="relative max-w-4xl max-h-screen p-4">
+                <button id="lightbox-close" class="absolute top-2 right-2 text-white text-2xl font-bold hover:text-gray-300 z-60">
+                    &times;
+                </button>
+                <img id="lightbox-image" src="" alt="" class="max-w-full max-h-full object-contain">
+            </div>
+        </div>
+
+        <script>
+            // Lightbox functionality
+            document.addEventListener('DOMContentLoaded', function() {
+                const modal = document.getElementById('lightbox-modal');
+                const modalImg = document.getElementById('lightbox-image');
+                const closeBtn = document.getElementById('lightbox-close');
+                const triggers = document.querySelectorAll('.lightbox-trigger');
+
+                // Open lightbox
+                triggers.forEach(trigger => {
+                    trigger.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const imgSrc = this.getAttribute('href');
+                        modalImg.src = imgSrc;
+                        modal.classList.remove('hidden');
+                        document.body.style.overflow = 'hidden'; // Prevent scrolling
+                    });
+                });
+
+                // Close lightbox
+                closeBtn.addEventListener('click', function() {
+                    modal.classList.add('hidden');
+                    document.body.style.overflow = 'auto'; // Restore scrolling
+                });
+
+                // Close lightbox when clicking outside the image
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.classList.add('hidden');
+                        document.body.style.overflow = 'auto'; // Restore scrolling
+                    }
+                });
+
+                // Close lightbox with Escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                        modal.classList.add('hidden');
+                        document.body.style.overflow = 'auto'; // Restore scrolling
+                    }
+                });
+
+                // Social Sharing Functionality
+                const postUrl = window.location.href;
+                const postTitle = <?php echo json_encode($post['Title'] ?? 'Check out this post'); ?>;
+
+                // WhatsApp Share Button
+                const whatsappBtn = document.querySelector('.whatsapp-share-btn');
+                if (whatsappBtn) {
+                    whatsappBtn.addEventListener('click', async function() {
+                        try {
+                            // Copy link to clipboard first
+                            await navigator.clipboard.writeText(postUrl);
+
+                            // Show success message
+                            showCopySuccess();
+
+                            // Open WhatsApp with pre-filled message
+                            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(postTitle + ' - ' + postUrl)}`;
+                            window.open(whatsappUrl, '_blank');
+                        } catch (err) {
+                            console.error('Failed to copy link: ', err);
+                            // Fallback: just open WhatsApp
+                            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(postTitle + ' - ' + postUrl)}`;
+                            window.open(whatsappUrl, '_blank');
+                        }
+                    });
+                }
+
+                // Copy Link Button
+                const copyBtn = document.querySelector('.copy-link-btn');
+                if (copyBtn) {
+                    copyBtn.addEventListener('click', async function() {
+                        try {
+                            await navigator.clipboard.writeText(postUrl);
+                            showCopySuccess();
+                        } catch (err) {
+                            console.error('Failed to copy link: ', err);
+                            // Fallback: show alert
+                            alert('Link: ' + postUrl);
+                        }
+                    });
+                }
+
+                // Show copy success message
+                function showCopySuccess() {
+                    const successMsg = document.getElementById('copy-success');
+                    if (successMsg) {
+                        successMsg.classList.remove('hidden');
+                        setTimeout(() => {
+                            successMsg.classList.add('hidden');
+                        }, 3000); // Hide after 3 seconds
+                    }
+                }
+            });
+        </script>
     </div>
 </body>
 

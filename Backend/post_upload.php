@@ -17,7 +17,7 @@ if (!isset($conn)) {
 
 $upload_dir = dirname(__DIR__) . '/Assets/uploads/'; // CORRECT absolute path
 $max_file_size = 5 * 1024 * 1024; // 5MB limit
-$allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+$allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/avi', 'video/mov', 'video/wmv'];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
@@ -80,7 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 break;
             }
             if (!in_array($file_type, $allowed_types)) {
-                $post_imagesErr = "Only JPG, PNG, and GIF images are allowed.";
+                $post_imagesErr = "Only JPG, PNG, GIF images and MP4, AVI, MOV, WMV videos are allowed.";
                 // $error_message = "Only JPG, PNG, and GIF images are allowed.";
                 $upload_successful = false;
                 break;
