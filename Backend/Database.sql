@@ -7,3 +7,11 @@ CREATE TABLE admins (
     password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE post_videos (
+    id INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    post_id INT(11) NOT NULL,
+    video_path VARCHAR(255) NOT NULL,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (post_id) REFERENCES blog_post(post_id) ON DELETE CASCADE
+);

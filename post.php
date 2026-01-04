@@ -43,6 +43,20 @@ if ($post_id > 0) {
         $read_time = "7 min read";
         $published_by = $post['published_by'];
 
+        // --- Fetch Videos ---
+        $video_paths = [];
+        $v_sql = "SELECT video_path FROM post_videos WHERE post_id = ?";
+        if ($v_stmt = $conn->prepare($v_sql)) {
+            $v_stmt->bind_param("i", $post_id);
+            if ($v_stmt->execute()) {
+                $v_result = $v_stmt->get_result();
+                while ($row = $v_result->fetch_assoc()) {
+                    $video_paths[] = $row['video_path'];
+                }
+            }
+            $v_stmt->close();
+        }
+
     } else {
         $error_message = 'Post with ID ' . htmlspecialchars($post_id) . " not found";
     }
@@ -180,30 +194,68 @@ if (empty($posts) && $conn->error) {
                                 </h1>
                                 <p class="text-[#5f758c] text-sm font-normal leading-normal">Published on
                                     <?php echo $formatted_date; ?> •
-                                    By <span><?php echo $published_by;?></span> •
+                                    By <span><?php echo $published_by; ?></span> •
                                     <?php echo $read_time; ?>
                                 </p>
                             </div>
                             <!-- Featured Image (hero image) -->
-                            <div class="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden min-h-[320px] md:min-h-[400px]"
+                            <!-- Hero Media (Image or Video) -->
+                            <div class="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden h-[400px] md:h-[500px] relative bg-black"
                                 data-alt="<?php echo htmlspecialchars($post['Title']); ?>">
-                                <img src="<?php echo $hero_image_url; ?>"
-                                    class="w-full h-auto object-cover rounded-lg transition duration-300 hover:opacity-90">
+                                <?php if (!empty($image_paths)): ?>
+                                    <img src="<?php echo $hero_image_url; ?>"
+                                        class="w-full h-full object-contain rounded-lg transition duration-300 hover:opacity-90">
+                                <?php elseif (!empty($video_paths)): ?>
+                                    <video src="<?php echo htmlspecialchars($video_paths[0]); ?>" controls
+                                        class="w-full h-full object-contain rounded-lg"></video>
+                                <?php else: ?>
+                                    <img src="<?php echo $hero_image_url; ?>"
+                                        class="w-full h-full object-contain rounded-lg transition duration-300 hover:opacity-90">
+                                <?php endif; ?>
                             </div>
                             <!-- Article Body -->
                             <div class="p-6 md:p-8 prose prose-lg max-w-none text-[#333]">
                                 <?php echo $post['Content']; ?>
-                                <p class="mt-2">Author: <?php echo $published_by;?></p>
+                                <p class="mt-2">Author: <?php echo $published_by; ?></p>
                             </div>
+
+                            <?php
+                            // Determine which videos to show in the gallery
+                            $gallery_videos = [];
+                            if (!empty($image_paths)) {
+                                // If hero was an image, show ALL videos
+                                $gallery_videos = $video_paths;
+                            } elseif (!empty($video_paths)) {
+                                // If hero was the first video, show the rest
+                                $gallery_videos = array_slice($video_paths, 1);
+                            }
+                            ?>
+
+                            <!-- Video Gallery -->
+                            <?php if (!empty($gallery_videos)): ?>
+                                <div class="px-6 md:px-8 mt-4 pt-8 border-t border-gray-100">
+                                    <h3 class="text-2xl font-bold mb-6 text-[#111418]">Videos</h3>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                        <?php foreach ($gallery_videos as $vid_path): ?>
+                                            <div
+                                                class="rounded-lg overflow-hidden shadow-lg border border-gray-100 h-[300px] bg-black">
+                                                <video src="<?php echo htmlspecialchars($vid_path); ?>" controls
+                                                    class="w-full h-full object-contain rounded-lg"></video>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
                             <!-- Image Gallery -->
                             <?php if (!empty($other_images)): ?>
                                 <div class="px-6 md:px-8 mt-4 pt-8 border-t border-gray-100">
                                     <h3 class="text-2xl font-bold mb-6 text-[#111418]">Additional Imagery</h3>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                         <?php foreach ($other_images as $image_url): ?>
-                                            <div class="rounded-lg overflow-hidden shadow-lg border border-gray-100">
+                                            <div
+                                                class="rounded-lg overflow-hidden shadow-lg border border-gray-100 h-[300px] bg-black">
                                                 <img src="<?php echo htmlspecialchars($image_url); ?>"
-                                                    class="w-full h-auto object-cover rounded-lg transition duration-300 hover:opacity-90"
+                                                    class="w-full h-full object-contain rounded-lg transition duration-300 hover:opacity-90"
                                                     onerror="this.onerror = null; this.src='https://placehold.co/600x400/cccccc/333333?text=Image+Unavailable';" />
                                             </div>
                                         <?php endforeach; ?>

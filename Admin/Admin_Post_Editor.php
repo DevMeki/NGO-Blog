@@ -1,7 +1,6 @@
 <?php
 session_start();
 require_once '../Backend/Config.php';
-// require_once '../Backend/track_visits.php';
 
 // Check if admin is logged in
 if (!isset($_SESSION['username'])) {
@@ -249,6 +248,25 @@ if (isset($_GET['error'])) {
                             </p>
                         </div>
 
+                        <div class="bg-blue-100 p-6 rounded-xl shadow-sm">
+                            <p class="text-base font-bold text-center leading-normal pb-2">Add Video</p>
+                            <p class="font-sm text-center">Video size should not exceed 50MB.</p>
+
+                            <input type="file" name="post_videos[]" id="post_videos_input" accept="video/*" multiple
+                                class="hidden" onchange="handleNewVideoSelection(this.files)">
+
+                            <div id="video_preview_container" class="flex flex-wrap gap-4 items-start">
+                                <button type="button" onclick="document.getElementById('post_videos_input').click()"
+                                    class="add-video-button h-50 w-50 border-2 border-dashed border-[#dbe0e6] rounded-lg flex items-center justify-center bg-white text-gray-400 hover:border-orange-600 transition duration-200">
+                                    <i class="bi bi-plus-lg text-2xl"></i>
+                                </button>
+                            </div>
+
+                            <p class="text-[#fd0303] text-base font-medium leading-normal pb-2" id="FeaturedVideoErr">
+                                <?php echo $post_videosErr ?? ''; ?>
+                            </p>
+                        </div>
+
                         <!-- Categories, Tags, Featured Post starts here  -->
                         <input type="hidden" name="Categories" id="Categories_js">
                         <input type="hidden" name="Tags" id="Tags_js">
@@ -313,6 +331,7 @@ if (isset($_GET['error'])) {
     <script>
         // File Management & Previews
         let filesToUpload = new DataTransfer();
+        let videosToUpload = new DataTransfer();
 
         // 1. Handles files selected via the hidden input field (called by onchange)
         function handleNewFileSelection(newFiles) {
@@ -408,6 +427,73 @@ if (isset($_GET['error'])) {
             container.insertAdjacentHTML('beforeend', addButtonHtml);
         }
 
+        // --- Video Management Functions ---
+
+        // 1. Handles videos selected
+        function handleNewVideoSelection(newFiles) {
+            if (newFiles.length === 0) return;
+
+            for (let i = 0; i < newFiles.length; i++) {
+                if (newFiles[i].type.startsWith('video/')) {
+                    if (newFiles[i].size > 50 * 1024 * 1024) {
+                        alert('File "' + newFiles[i].name + '" exceeds 50MB size limit.');
+                        continue;
+                    }
+                    videosToUpload.items.add(newFiles[i]);
+                }
+            }
+            document.getElementById('post_videos_input').files = videosToUpload.files;
+            renderVideoPreviews();
+        }
+
+        // 2. Removes a video
+        function removeVideo(indexToRemove) {
+            videosToUpload.items.remove(indexToRemove);
+            document.getElementById('post_videos_input').files = videosToUpload.files;
+            renderVideoPreviews();
+        }
+
+        // 3. Renders video previews
+        function renderVideoPreviews() {
+            const container = document.getElementById('video_preview_container');
+            container.innerHTML = '';
+            const currentFiles = videosToUpload.files;
+
+            if (currentFiles.length > 0) {
+                for (let i = 0; i < currentFiles.length; i++) {
+                    const file = currentFiles[i];
+                    const videoUrl = URL.createObjectURL(file);
+
+                    const previewHtml = `
+                        <div class="relative size-30 rounded-lg overflow-hidden shadow-md group">
+                            <video src="${videoUrl}" class="w-40 h-40 object-cover"></video>
+                            <button type="button" onclick="removeVideo(${i})"
+                                class="font-bold absolute top-0 right-0 size-6 rounded-full bg-red-600 text-white flex items-center justify-center opacity-100 transition duration-300 transform translate-x-1 -translate-y-1 group-hover:translate-x-0 group-hover:translate-y-0">
+                                <i class="bi bi-x-lg text-sm"></i>
+                            </button>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', previewHtml);
+
+                    if (i === currentFiles.length - 1) {
+                        insertAddVideoButton(container);
+                    }
+                }
+            } else {
+                insertAddVideoButton(container);
+            }
+        }
+
+        function insertAddVideoButton(container) {
+            const addButtonHtml = `
+            <button type="button" onclick="document.getElementById('post_videos_input').click()"
+                class="add-video-button size-30 border-2 border-dashed border-[#dbe0e6] rounded-lg flex items-center justify-center bg-white text-gray-400 hover:border-orange-600 transition duration-200">
+                <i class="bi bi-plus-lg text-2xl"></i>
+            </button>
+        `;
+            container.insertAdjacentHTML('beforeend', addButtonHtml);
+        }
+
         //Validation Function
         function Post_validation() {
             const post_title = document.getElementById("post_title").value.trim();
@@ -438,13 +524,18 @@ if (isset($_GET['error'])) {
                 hidden_post_content.value = post_content1;
             }
 
-            // Image validation check
-            if (uploaded_files_count === 0) {
-                FeaturedImageErr1.innerHTML = "At least one image must be uploaded";
+            // Image/Video validation check (At least one is required)
+            const uploaded_videos_count = videosToUpload.files.length;
+
+            if (uploaded_files_count === 0 && uploaded_videos_count === 0) {
+                FeaturedImageErr1.innerHTML = "At least one image or video must be uploaded";
                 isValid = false;
             } else {
-                document.getElementById('post_images_input').files = filesToUpload.files;
+                if (uploaded_files_count > 0) document.getElementById('post_images_input').files = filesToUpload.files;
             }
+
+            // Sync videos
+            document.getElementById('post_videos_input').files = videosToUpload.files;
 
             // categories, tags and featured handling
             const CategoriesSelect = document.getElementById("categories_select");
@@ -480,6 +571,7 @@ if (isset($_GET['error'])) {
         // Initial render call to show the "+" button when the page loads
         document.addEventListener('DOMContentLoaded', function () {
             renderPreviews();
+            renderVideoPreviews();
 
             // Set initial values for draft data
             const categoriesSelect = document.getElementById("categories_select");
@@ -518,11 +610,12 @@ if (isset($_GET['error'])) {
 
             let isValid = true;
 
-            if (post_title === "" && post_content1 === "" && uploaded_files_count === 0) {
-                alert("Cannot save an empty draft. Please add a title, content, or images.");
+            if (post_title === "" && post_content1 === "") {
+                alert("Cannot save an empty draft. Please add a title or content.");
                 isValid = false;
             } else {
                 document.getElementById('post_images_input').files = filesToUpload.files;
+                document.getElementById('post_videos_input').files = videosToUpload.files;
 
                 // categories, tags and featured handling
                 const CategoriesSelect = document.getElementById("categories_select");

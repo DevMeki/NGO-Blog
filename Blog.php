@@ -9,61 +9,61 @@ if (!isset($conn)) {
 
 // Handle AJAX search requests
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['search_action']) && $_POST['search_action'] === 'live_search') {
-    header('Content-Type: application/json');
-    
-    try {
-        $searchTerm = trim($_POST['search_term'] ?? '');
-        $category = trim($_POST['category'] ?? '');
-        
-        if (empty($searchTerm) && empty($category)) {
-            echo json_encode([]);
-            exit();
-        }
-        
-        $sql = "SELECT post_id, title, content, image_path, date_posted, Categories, published_by 
+  header('Content-Type: application/json');
+
+  try {
+    $searchTerm = trim($_POST['search_term'] ?? '');
+    $category = trim($_POST['category'] ?? '');
+
+    if (empty($searchTerm) && empty($category)) {
+      echo json_encode([]);
+      exit();
+    }
+
+    $sql = "SELECT post_id, title, content, image_path, date_posted, Categories, published_by 
                 FROM blog_post 
                 WHERE 1=1";
-        
-        $params = [];
-        $types = '';
-        
-        if (!empty($searchTerm)) {
-            $sql .= " AND (title LIKE ? OR content LIKE ? OR published_by LIKE ?)";
-            $searchPattern = '%' . $searchTerm . '%';
-            $params = array_merge($params, [$searchPattern, $searchPattern, $searchPattern]);
-            $types .= 'sss';
-        }
-        
-        if (!empty($category) && $category !== 'all') {
-            $sql .= " AND Categories = ?";
-            $params[] = $category;
-            $types .= 's';
-        }
-        
-        $sql .= " ORDER BY date_posted DESC LIMIT 20";
-        
-        $stmt = $conn->prepare($sql);
-        
-        if (!empty($params)) {
-            $stmt->bind_param($types, ...$params);
-        }
-        
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
-        $posts = [];
-        while ($row = $result->fetch_assoc()) {
-            $posts[] = $row;
-        }
-        
-        echo json_encode($posts);
-        exit();
-        
-    } catch (Exception $e) {
-        http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
-        exit();
+
+    $params = [];
+    $types = '';
+
+    if (!empty($searchTerm)) {
+      $sql .= " AND (title LIKE ? OR content LIKE ? OR published_by LIKE ?)";
+      $searchPattern = '%' . $searchTerm . '%';
+      $params = array_merge($params, [$searchPattern, $searchPattern, $searchPattern]);
+      $types .= 'sss';
     }
+
+    if (!empty($category) && $category !== 'all') {
+      $sql .= " AND Categories = ?";
+      $params[] = $category;
+      $types .= 's';
+    }
+
+    $sql .= " ORDER BY date_posted DESC LIMIT 20";
+
+    $stmt = $conn->prepare($sql);
+
+    if (!empty($params)) {
+      $stmt->bind_param($types, ...$params);
+    }
+
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $posts = [];
+    while ($row = $result->fetch_assoc()) {
+      $posts[] = $row;
+    }
+
+    echo json_encode($posts);
+    exit();
+
+  } catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['error' => $e->getMessage()]);
+    exit();
+  }
 }
 
 // Get all unique categories for filter buttons
@@ -71,9 +71,9 @@ $categories = [];
 $category_query = "SELECT DISTINCT Categories FROM blog_post WHERE Categories IS NOT NULL AND Categories != ''";
 $category_result = mysqli_query($conn, $category_query);
 if ($category_result) {
-    while ($row = mysqli_fetch_assoc($category_result)) {
-        $categories[] = $row['Categories'];
-    }
+  while ($row = mysqli_fetch_assoc($category_result)) {
+    $categories[] = $row['Categories'];
+  }
 }
 
 // Check if we have a category filter in URL
@@ -89,8 +89,8 @@ $data_query = "SELECT post_id, title, content, image_path, date_posted, Categori
 
 // Add category filter if specified
 if ($selected_category !== 'all') {
-    $count_query .= " AND Categories = ?";
-    $data_query .= " AND Categories = ?";
+  $count_query .= " AND Categories = ?";
+  $data_query .= " AND Categories = ?";
 }
 
 $count_query .= " ORDER BY date_posted DESC";
@@ -98,22 +98,24 @@ $data_query .= " ORDER BY date_posted DESC LIMIT ? OFFSET ?";
 
 // Get total count
 if ($stmt = $conn->prepare($count_query)) {
-    if ($selected_category !== 'all') {
-        $stmt->bind_param("s", $selected_category);
-    }
-    $stmt->execute();
-    $count_result = $stmt->get_result();
-    $total_rows = $count_result->fetch_assoc()['total'];
-    $total_pages = ceil($total_rows / $records_per_page);
-    $stmt->close();
+  if ($selected_category !== 'all') {
+    $stmt->bind_param("s", $selected_category);
+  }
+  $stmt->execute();
+  $count_result = $stmt->get_result();
+  $total_rows = $count_result->fetch_assoc()['total'];
+  $total_pages = ceil($total_rows / $records_per_page);
+  $stmt->close();
 } else {
-    $total_rows = 0;
-    $total_pages = 1;
+  $total_rows = 0;
+  $total_pages = 1;
 }
 
 $current_page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-if ($current_page < 1) $current_page = 1;
-if ($current_page > $total_pages) $current_page = $total_pages;
+if ($current_page < 1)
+  $current_page = 1;
+if ($current_page > $total_pages)
+  $current_page = $total_pages;
 
 $offset = ($current_page - 1) * $records_per_page;
 
@@ -123,49 +125,52 @@ $fetch_error = null;
 // Fetch posts with pagination and category filter
 function getPublishedPosts($conn, $limit = 12, $offset = 0, $category = 'all')
 {
-    $sql = "SELECT post_id, title, content, image_path, date_posted, Categories, published_by FROM blog_post WHERE 1=1";
-    
+  $sql = "SELECT bp.post_id, bp.title, bp.content, bp.image_path, bp.date_posted, bp.Categories, bp.published_by, GROUP_CONCAT(pv.video_path) as video_paths 
+            FROM blog_post bp
+            LEFT JOIN post_videos pv ON bp.post_id = pv.post_id 
+            WHERE 1=1";
+
+  if ($category !== 'all') {
+    $sql .= " AND bp.Categories = ?";
+  }
+
+  $sql .= " GROUP BY bp.post_id ORDER BY bp.date_posted DESC LIMIT ? OFFSET ?";
+
+  $posts = [];
+
+  if ($stmt = $conn->prepare($sql)) {
     if ($category !== 'all') {
-        $sql .= " AND Categories = ?";
-    }
-    
-    $sql .= " ORDER BY date_posted DESC LIMIT ? OFFSET ?";
-
-    $posts = [];
-
-    if ($stmt = $conn->prepare($sql)) {
-        if ($category !== 'all') {
-            $stmt->bind_param("sii", $category, $limit, $offset);
-        } else {
-            $stmt->bind_param("ii", $limit, $offset);
-        }
-
-        if ($stmt->execute()) {
-            $result = $stmt->get_result();
-
-            while ($row = $result->fetch_assoc()) {
-                $posts[] = $row;
-            }
-            $stmt->close();
-        } else {
-            error_log("Failed to execute post fetch query: " . $stmt->error);
-        }
+      $stmt->bind_param("sii", $category, $limit, $offset);
     } else {
-        error_log("Failed to prepare post fetch statement: " . $conn->error);
+      $stmt->bind_param("ii", $limit, $offset);
     }
 
-    return $posts;
+    if ($stmt->execute()) {
+      $result = $stmt->get_result();
+
+      while ($row = $result->fetch_assoc()) {
+        $posts[] = $row;
+      }
+      $stmt->close();
+    } else {
+      error_log("Failed to execute post fetch query: " . $stmt->error);
+    }
+  } else {
+    error_log("Failed to prepare post fetch statement: " . $conn->error);
+  }
+
+  return $posts;
 }
 
 // Fetch posts
 $posts = getPublishedPosts($conn, 12, $offset, $selected_category);
 
 if (empty($posts) && $conn->error) {
-    $fetch_error = "Could not retrieve posts due to a database error.";
+  $fetch_error = "Could not retrieve posts due to a database error.";
 } elseif (empty($posts)) {
-    $fetch_error = $selected_category !== 'all' ? 
-        "No blog posts found in the '{$selected_category}' category." : 
-        "No blog posts have been published yet.";
+  $fetch_error = $selected_category !== 'all' ?
+    "No blog posts found in the '{$selected_category}' category." :
+    "No blog posts have been published yet.";
 }
 
 ?>
@@ -196,9 +201,11 @@ if (empty($posts) && $conn->error) {
     .search-loading {
       display: none;
     }
+
     .search-loading.active {
       display: block;
     }
+
     .search-results-container {
       position: absolute;
       top: 100%;
@@ -214,25 +221,31 @@ if (empty($posts) && $conn->error) {
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
       display: none;
     }
+
     .search-results-container.active {
       display: block;
     }
+
     .search-result-item {
       padding: 1rem;
       border-bottom: 1px solid #f3f4f6;
       cursor: pointer;
       transition: background-color 0.2s;
     }
+
     .search-result-item:hover {
       background-color: #f9fafb;
     }
+
     .search-result-item:last-child {
       border-bottom: none;
     }
+
     .category-active {
       background-color: #1d4ed8 !important;
       color: white !important;
     }
+
     .search-result-image {
       width: 60px;
       height: 60px;
@@ -268,7 +281,7 @@ if (empty($posts) && $conn->error) {
                 </div>
               </div>
             </div>
-            
+
             <!-- Search Section -->
             <div class="px-4 py-6 relative">
               <form id="searchForm" class="relative">
@@ -284,9 +297,7 @@ if (empty($posts) && $conn->error) {
                     </div>
                     <input
                       class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-gray-800 focus:outline-2 focus:ring-1 bg-white focus:border-1 h-full placeholder:text-gray-600 px-4 border-l-0 pl-2 text-base font-normal leading-normal"
-                      placeholder="Search for articles by title, content, or author..." 
-                      value="" 
-                      id="searchInput" />
+                      placeholder="Search for articles by title, content, or author..." value="" id="searchInput" />
                     <div class="items-center justify-center">
                       <button type="button" id="searchButton"
                         class="min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center h-11 px-4 hover:bg-blue-400 bg-blue-600 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
@@ -295,17 +306,17 @@ if (empty($posts) && $conn->error) {
                     </div>
                   </div>
                 </label>
-                
+
                 <!-- Loading Spinner -->
                 <div id="searchLoading" class="search-loading absolute right-32 top-1/2 transform -translate-y-1/2">
                   <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
                 </div>
-                
+
                 <!-- Search Results Container -->
                 <div id="searchResults" class="search-results-container"></div>
               </form>
             </div>
-            
+
             <!-- Category Filters -->
             <div class="flex gap-3 p-3 flex-wrap pr-4" id="categoryFilters">
               <a href="?category=all&page=1"
@@ -319,7 +330,7 @@ if (empty($posts) && $conn->error) {
                 </a>
               <?php endforeach; ?>
             </div>
-            
+
             <!-- Posts Grid -->
             <div id="postsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-2">
               <?php if ($fetch_error): ?>
@@ -345,13 +356,27 @@ if (empty($posts) && $conn->error) {
 
                 // Format date
                 $formatted_date = date("M j, Y", strtotime($post['date_posted']));
+                // Decode video paths
+                $video_paths = !empty($post['video_paths']) ? explode(',', $post['video_paths']) : [];
+                $video_url = !empty($video_paths) ? htmlspecialchars($video_paths[0]) : '';
                 ?>
                 <div
                   class="flex flex-col gap-3 pb-3 rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-lg transition-shadow duration-300 group">
-                  <!-- Image Area -->
-                  <div class="w-full bg-center bg-no-repeat aspect-video bg-cover"
-                    style='background-image: url("<?php echo $image_url; ?>");'
-                    data-alt="<?php echo htmlspecialchars($post['title']); ?>">
+                  <!-- Media Area -->
+                  <div class="w-full bg-center bg-no-repeat h-64 bg-cover bg-gray-100 relative">
+                    <?php if (!empty($image_paths)): ?>
+                      <div class="w-full h-full bg-center bg-no-repeat bg-cover"
+                        style='background-image: url("<?php echo $image_url; ?>");'
+                        data-alt="<?php echo htmlspecialchars($post['title']); ?>">
+                      </div>
+                    <?php elseif ($video_url): ?>
+                      <video src="<?php echo $video_url; ?>" controls class="w-full h-full object-cover"></video>
+                    <?php else: ?>
+                      <div class="w-full h-full bg-center bg-no-repeat bg-cover"
+                        style='background-image: url("<?php echo $image_url; ?>");'
+                        data-alt="<?php echo htmlspecialchars($post['title']); ?>">
+                      </div>
+                    <?php endif; ?>
                   </div>
                   <!-- Content Area -->
                   <div class="p-4 flex flex-col flex-1">
@@ -369,10 +394,10 @@ if (empty($posts) && $conn->error) {
 
                     <div class="mt-2">
                       <p class="text-gray-500 text-xs font-normal">
-                        <?php echo 'Written By: '. htmlspecialchars($post['published_by']); ?>
+                        <?php echo 'Written By: ' . htmlspecialchars($post['published_by']); ?>
                       </p>
                     </div>
-                    
+
                     <div class="flex items-center justify-between mt-4">
                       <p class="text-gray-500 text-xs font-normal">
                         <?php echo $formatted_date; ?>
@@ -418,7 +443,7 @@ if (empty($posts) && $conn->error) {
                     </a>";
                   }
                 }
-                
+
                 $next_page = $current_page + 1;
                 if ($current_page < $total_pages) {
                   echo "<a href='?category=" . urlencode($selected_category) . "&page=$next_page'>
@@ -476,7 +501,7 @@ if (empty($posts) && $conn->error) {
         }
 
         const results = await response.json();
-        
+
         if (results.error) {
           searchResults.innerHTML = `<div class="p-4 text-red-500 text-center">${results.error}</div>`;
           return;
@@ -495,8 +520,8 @@ if (empty($posts) && $conn->error) {
     // Display search results
     function displaySearchResults(results, searchTerm, category) {
       if (!results || results.length === 0) {
-        const noResultsText = !searchTerm.trim() && category !== 'all' ? 
-          `No posts found in "${category}" category` : 
+        const noResultsText = !searchTerm.trim() && category !== 'all' ?
+          `No posts found in "${category}" category` :
           'No posts found matching your search';
         searchResults.innerHTML = `<div class="p-4 text-center text-gray-500">${noResultsText}</div>`;
         return;
@@ -516,10 +541,10 @@ if (empty($posts) && $conn->error) {
 
         // Truncate content
         const content = post.content ? stripHtml(post.content).substring(0, 80) + '...' : '';
-        const date = new Date(post.date_posted).toLocaleDateString('en-US', { 
-          month: 'short', 
-          day: 'numeric', 
-          year: 'numeric' 
+        const date = new Date(post.date_posted).toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
         });
 
         // Highlight search term
@@ -564,10 +589,10 @@ if (empty($posts) && $conn->error) {
     }
 
     // Event listeners
-    searchInput.addEventListener('input', function(e) {
+    searchInput.addEventListener('input', function (e) {
       currentSearchTerm = e.target.value.trim();
       clearTimeout(searchTimeout);
-      
+
       if (currentSearchTerm.length < 2 && currentCategory === 'all') {
         searchResults.classList.remove('active');
         return;
@@ -578,11 +603,11 @@ if (empty($posts) && $conn->error) {
       }, 300);
     });
 
-    searchButton.addEventListener('click', function() {
+    searchButton.addEventListener('click', function () {
       performSearch(currentSearchTerm, currentCategory);
     });
 
-    searchInput.addEventListener('keypress', function(e) {
+    searchInput.addEventListener('keypress', function (e) {
       if (e.key === 'Enter') {
         e.preventDefault();
         performSearch(currentSearchTerm, currentCategory);
@@ -590,14 +615,14 @@ if (empty($posts) && $conn->error) {
     });
 
     // Close search results when clicking outside
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
       if (!e.target.closest('#searchForm') && !e.target.closest('#searchResults')) {
         searchResults.classList.remove('active');
       }
     });
 
     // Category filter click handlers
-    categoryFilters.addEventListener('click', function(e) {
+    categoryFilters.addEventListener('click', function (e) {
       const categoryLink = e.target.closest('a[href*="category="]');
       if (categoryLink) {
         // Update active category
@@ -605,16 +630,16 @@ if (empty($posts) && $conn->error) {
           link.classList.remove('bg-blue-600', 'text-white', 'category-active');
           link.classList.add('bg-white', 'hover:bg-blue-200', 'text-gray-800');
         });
-        
+
         categoryLink.classList.remove('bg-white', 'hover:bg-blue-200', 'text-gray-800');
         categoryLink.classList.add('bg-blue-600', 'text-white', 'category-active');
-        
+
         // Extract category from href
         const href = categoryLink.getAttribute('href');
         const match = href.match(/category=([^&]+)/);
         if (match) {
           currentCategory = decodeURIComponent(match[1]);
-          
+
           // If there's a search term, perform search with new category
           if (currentSearchTerm.trim().length >= 2) {
             performSearch(currentSearchTerm, currentCategory);
@@ -625,7 +650,7 @@ if (empty($posts) && $conn->error) {
 
     // Clear search when category changes
     document.querySelectorAll('#categoryFilters a').forEach(link => {
-      link.addEventListener('click', function() {
+      link.addEventListener('click', function () {
         searchInput.value = '';
         currentSearchTerm = '';
         searchResults.classList.remove('active');

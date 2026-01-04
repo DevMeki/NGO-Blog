@@ -24,6 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // if (isset($_POST['action']) && $_POST['action'] == 'poblish') {
 
     $upload_successful = true;
+    $image_paths_json = json_encode([]); // Default empty JSON for optional images
 
     // --- 2. Sanitize and Validate Title ---
     if (empty($_POST["post_title"])) {
@@ -106,12 +107,60 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $image_paths_json = json_encode($uploaded_paths);
 
     } else {
-        // Validation check for empty files
-        $post_imagesErr = "At least one image is required for the post.";
-        // $error_message = "At least one image is required for the post.";
-        $upload_successful = false;
+        // Image upload is optional now
     }
 
+
+    // --- Handle Video Uploads ---
+    $uploaded_video_paths = [];
+    $max_video_size = 50 * 1024 * 1024; // 50MB
+    $allowed_video_types = ['video/mp4', 'video/webm', 'video/ogg'];
+
+    if (isset($_FILES['post_videos']) && !empty($_FILES['post_videos']['name'][0])) {
+        for ($i = 0; $i < count($_FILES['post_videos']['name']); $i++) {
+            $video_name = $_FILES['post_videos']['name'][$i];
+            $video_tmp = $_FILES['post_videos']['tmp_name'][$i];
+            $video_size = $_FILES['post_videos']['size'][$i];
+            $video_error = $_FILES['post_videos']['error'][$i];
+            $video_type = $_FILES['post_videos']['type'][$i];
+
+            if ($video_error !== UPLOAD_ERR_OK) {
+                // $post_videosErr = "Video upload error.";
+                continue;
+            }
+
+            if ($video_size > $max_video_size) {
+                // $post_videosErr = "Video too large.";
+                $upload_successful = false;
+                break;
+            }
+
+            if (!in_array($video_type, $allowed_video_types)) {
+                // $post_videosErr = "Invalid video type.";
+                $upload_successful = false;
+                break;
+            }
+
+            $video_ext = strtolower(pathinfo($video_name, PATHINFO_EXTENSION));
+            $new_video_name = uniqid('post_vid_', true) . '.' . $video_ext;
+            $video_destination = $upload_dir . $new_video_name;
+            $video_relative_path = 'Assets/uploads/' . $new_video_name;
+
+            if (move_uploaded_file($video_tmp, $video_destination)) {
+                $uploaded_video_paths[] = $video_relative_path;
+            }
+        }
+    }
+
+    // --- Verify Media Presence (Backend Check) ---
+    // Check if we have at least one image OR one video
+    $has_image = !empty($uploaded_paths);
+    $has_video = !empty($uploaded_video_paths);
+
+    if (!$has_image && !$has_video) {
+        $post_imagesErr = "At least one image or video is required.";
+        $upload_successful = false;
+    }
 
     $Categories = isset($_POST["Categories"]) ? $_POST["Categories"] : '';
     $Featured = isset($_POST['Featured']) ? $_POST['Featured'] : '';
@@ -145,6 +194,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Execute the prepared statement
             if ($stmt->execute()) {
+                $new_post_id = $conn->insert_id;
+
+                // --- 6. Insert Videos into post_videos table ---
+                if (!empty($uploaded_video_paths)) {
+                    $video_sql = "INSERT INTO post_videos (post_id, video_path) VALUES (?, ?)";
+                    if ($v_stmt = $conn->prepare($video_sql)) {
+                        foreach ($uploaded_video_paths as $v_path) {
+                            $v_stmt->bind_param("is", $new_post_id, $v_path);
+                            $v_stmt->execute();
+                        }
+                        $v_stmt->close();
+                    }
+                }
+
                 header("Location: ../Admin/Admin_Post_Editor.php?post_status=success");
                 if ($success) {
                     echo "success";
