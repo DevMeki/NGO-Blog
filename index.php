@@ -174,7 +174,7 @@
       <!-- Mobile background -->
       <div
         class="md:hidden absolute inset-0 bg-cover bg-center  relative min-h-screen flex flex-col justify-center items-center py-10 px-6 sm:px-10 overflow-hidden text-white"
-        style="background-image: linear-gradient(rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%), url('Assets/img/xmas bg mobile.jpg');">
+        style="background-image: linear-gradient(rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%), url('Assets/img/bg mobile.png');">
         <p
           class="font-semibold text-lg sm:text-2xl border border-white rounded-full px-6 py-2 bg-black bg-opacity-30 w-max mx-auto mb-10 text-center scale-in">
           Welcome To
@@ -209,7 +209,7 @@
       <!-- Desktop background -->
       <div
         class="hidden md:block absolute inset-0 bg-cover bg-center  relative min-h-screen flex flex-col justify-center items-center py-10 px-6 sm:px-10 overflow-hidden text-white"
-        style="background-image: linear-gradient(rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%), url('Assets/img/xmas bg desktop.png');">
+        style="background-image: linear-gradient(rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%), url('Assets/img/bg desktop.png');">
         <p
           class="font-semibold text-lg sm:text-2xl border border-white rounded-full px-6 py-2 bg-black bg-opacity-30 w-max mx-auto mb-10 text-center scale-in">
           Welcome To
