@@ -260,7 +260,8 @@ if (empty($posts) && $conn->error) {
                                         <?php foreach ($other_images as $image_url): ?>
                                             <div
                                                 class="rounded-lg overflow-hidden shadow-lg border border-gray-100 h-[300px] bg-black">
-                                                <a href="<?php echo htmlspecialchars($image_url); ?>" class="lightbox-trigger block w-full h-full">
+                                                <a href="<?php echo htmlspecialchars($image_url); ?>"
+                                                    class="lightbox-trigger block w-full h-full">
                                                     <img src="<?php echo htmlspecialchars($image_url); ?>"
                                                         class="w-full h-full object-contain rounded-lg transition duration-300 hover:opacity-90 cursor-pointer"
                                                         onerror="this.onerror = null; this.src='https://placehold.co/600x400/cccccc/333333?text=Image+Unavailable';" />
@@ -280,8 +281,7 @@ if (empty($posts) && $conn->error) {
                                         <a class="flex items-center justify-center size-10 rounded-full bg-gray-100 hover:bg-blue-500 hover:text-white transition-colors duration-200"
                                             data-alt="Share on Twitter/X"
                                             href="https://twitter.com/intent/tweet?url=<?php echo urlencode('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']); ?>&text=<?php echo urlencode($post['Title'] ?? 'Check out this post'); ?>"
-                                            target="_blank"
-                                            rel="noopener noreferrer">
+                                            target="_blank" rel="noopener noreferrer">
                                             <i class="bi bi-twitter-x text-lg"></i>
                                         </a>
 
@@ -289,8 +289,7 @@ if (empty($posts) && $conn->error) {
                                         <a class="flex items-center justify-center size-10 rounded-full bg-gray-100 hover:bg-blue-600 hover:text-white transition-colors duration-200"
                                             data-alt="Share on Facebook"
                                             href="https://www.facebook.com/sharer/sharer.php?u=<?php echo urlencode('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']); ?>"
-                                            target="_blank"
-                                            rel="noopener noreferrer">
+                                            target="_blank" rel="noopener noreferrer">
                                             <i class="bi bi-facebook text-lg"></i>
                                         </a>
 
@@ -298,22 +297,21 @@ if (empty($posts) && $conn->error) {
                                         <a class="flex items-center justify-center size-10 rounded-full bg-gray-100 hover:bg-blue-700 hover:text-white transition-colors duration-200"
                                             data-alt="Share on LinkedIn"
                                             href="https://www.linkedin.com/sharing/share-offsite/?url=<?php echo urlencode('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']); ?>"
-                                            target="_blank"
-                                            rel="noopener noreferrer">
+                                            target="_blank" rel="noopener noreferrer">
                                             <i class="bi bi-linkedin text-lg"></i>
                                         </a>
 
                                         <!-- WhatsApp -->
-                                        <button class="flex items-center justify-center size-10 rounded-full bg-gray-100 hover:bg-green-500 hover:text-white transition-colors duration-200 whatsapp-share-btn"
-                                                data-alt="Share on WhatsApp"
-                                                type="button">
+                                        <button
+                                            class="flex items-center justify-center size-10 rounded-full bg-gray-100 hover:bg-green-500 hover:text-white transition-colors duration-200 whatsapp-share-btn"
+                                            data-alt="Share on WhatsApp" type="button">
                                             <i class="bi bi-whatsapp text-lg"></i>
                                         </button>
 
                                         <!-- Copy Link -->
-                                        <button class="flex items-center justify-center size-10 rounded-full bg-gray-100 hover:bg-gray-600 hover:text-white transition-colors duration-200 copy-link-btn"
-                                                data-alt="Copy Link"
-                                                type="button">
+                                        <button
+                                            class="flex items-center justify-center size-10 rounded-full bg-gray-100 hover:bg-gray-600 hover:text-white transition-colors duration-200 copy-link-btn"
+                                            data-alt="Copy Link" type="button">
                                             <i class="bi bi-link-45deg text-lg"></i>
                                         </button>
                                     </div>
@@ -393,13 +391,15 @@ if (empty($posts) && $conn->error) {
         </main>
         <!-- Footer -->
         <?php
-        include 'footer.php';
+        include 'Footer.php';
         ?>
 
         <!-- Lightbox Modal -->
-        <div id="lightbox-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div id="lightbox-modal"
+            class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
             <div class="relative max-w-4xl max-h-screen p-4">
-                <button id="lightbox-close" class="absolute top-2 right-2 text-white text-2xl font-bold hover:text-gray-300 z-60">
+                <button id="lightbox-close"
+                    class="absolute top-2 right-2 text-white text-2xl font-bold hover:text-gray-300 z-60">
                     &times;
                 </button>
                 <img id="lightbox-image" src="" alt="" class="max-w-full max-h-full object-contain">
@@ -408,7 +408,7 @@ if (empty($posts) && $conn->error) {
 
         <script>
             // Lightbox functionality
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 const modal = document.getElementById('lightbox-modal');
                 const modalImg = document.getElementById('lightbox-image');
                 const closeBtn = document.getElementById('lightbox-close');
@@ -416,7 +416,7 @@ if (empty($posts) && $conn->error) {
 
                 // Open lightbox
                 triggers.forEach(trigger => {
-                    trigger.addEventListener('click', function(e) {
+                    trigger.addEventListener('click', function (e) {
                         e.preventDefault();
                         const imgSrc = this.getAttribute('href');
                         modalImg.src = imgSrc;
@@ -426,13 +426,13 @@ if (empty($posts) && $conn->error) {
                 });
 
                 // Close lightbox
-                closeBtn.addEventListener('click', function() {
+                closeBtn.addEventListener('click', function () {
                     modal.classList.add('hidden');
                     document.body.style.overflow = 'auto'; // Restore scrolling
                 });
 
                 // Close lightbox when clicking outside the image
-                modal.addEventListener('click', function(e) {
+                modal.addEventListener('click', function (e) {
                     if (e.target === modal) {
                         modal.classList.add('hidden');
                         document.body.style.overflow = 'auto'; // Restore scrolling
@@ -440,7 +440,7 @@ if (empty($posts) && $conn->error) {
                 });
 
                 // Close lightbox with Escape key
-                document.addEventListener('keydown', function(e) {
+                document.addEventListener('keydown', function (e) {
                     if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
                         modal.classList.add('hidden');
                         document.body.style.overflow = 'auto'; // Restore scrolling
@@ -454,7 +454,7 @@ if (empty($posts) && $conn->error) {
                 // WhatsApp Share Button
                 const whatsappBtn = document.querySelector('.whatsapp-share-btn');
                 if (whatsappBtn) {
-                    whatsappBtn.addEventListener('click', async function() {
+                    whatsappBtn.addEventListener('click', async function () {
                         try {
                             // Copy link to clipboard first
                             await navigator.clipboard.writeText(postUrl);
@@ -477,7 +477,7 @@ if (empty($posts) && $conn->error) {
                 // Copy Link Button
                 const copyBtn = document.querySelector('.copy-link-btn');
                 if (copyBtn) {
-                    copyBtn.addEventListener('click', async function() {
+                    copyBtn.addEventListener('click', async function () {
                         try {
                             await navigator.clipboard.writeText(postUrl);
                             showCopySuccess();

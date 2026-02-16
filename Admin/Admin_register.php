@@ -147,7 +147,7 @@ include '../Backend/Config.php';
 
             if ($stmt->execute()) {
                 // Redirect to login page only on successful registration
-                header("Location: Admin_Login.php");
+                header("Location: Admin_login.php");
                 exit();
             } else {
                 $usernameErr = "Registration failed. Please try again.";
@@ -177,7 +177,8 @@ include '../Backend/Config.php';
                 </div>
                 <div class="flex flex-col p-8 bg-white rounded-xl border border-gray-200 shadow-sm">
                     <form class="flex flex-col gap-6" method="post"
-                        action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" id="registerForm" onsubmit="return validateForm()">
+                        action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" id="registerForm"
+                        onsubmit="return validateForm()">
 
                         <!-- Token Field -->
                         <div class="flex flex-col">
@@ -301,10 +302,10 @@ include '../Backend/Config.php';
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('Confirm_password').value;
-        
+
         // Clear previous error messages
         clearErrors();
-        
+
         let isValid = true;
 
         // Validate Token
@@ -365,7 +366,7 @@ include '../Backend/Config.php';
     }
 
     // Real-time validation (optional - as user types)
-    document.getElementById('token').addEventListener('input', function() {
+    document.getElementById('token').addEventListener('input', function () {
         const token = this.value.trim();
         if (token !== '' && !/^[A-Za-z0-9\s]+$/.test(token)) {
             showError('tokenError', 'Only letters, numbers and white space allowed');
@@ -374,7 +375,7 @@ include '../Backend/Config.php';
         }
     });
 
-    document.getElementById('username').addEventListener('input', function() {
+    document.getElementById('username').addEventListener('input', function () {
         const username = this.value.trim();
         if (username !== '' && !/^[A-Za-z0-9\s]+$/.test(username)) {
             showError('usernameError', 'Only letters, numbers and white space allowed');
@@ -383,7 +384,7 @@ include '../Backend/Config.php';
         }
     });
 
-    document.getElementById('password').addEventListener('input', function() {
+    document.getElementById('password').addEventListener('input', function () {
         const password = this.value;
         if (password !== '' && password.length < 6) {
             showError('passwordError', 'Password must be at least 6 characters');
@@ -392,7 +393,7 @@ include '../Backend/Config.php';
         }
     });
 
-    document.getElementById('Confirm_password').addEventListener('input', function() {
+    document.getElementById('Confirm_password').addEventListener('input', function () {
         const confirmPassword = this.value;
         const password = document.getElementById('password').value;
         if (confirmPassword !== '' && password !== confirmPassword) {

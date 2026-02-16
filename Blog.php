@@ -460,7 +460,7 @@ if (empty($posts) && $conn->error) {
       </div>
     </div>
   </div>
-  <?php include 'footer.php'; ?>
+  <?php include 'Footer.php'; ?>
 
   <script>
     let searchTimeout;

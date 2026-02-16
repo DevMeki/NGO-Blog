@@ -12,7 +12,7 @@ if (!isset($_SESSION['username'])) {
 
 if (isset($_GET['logout']) && $_GET['logout'] === 'confirm') {
     session_destroy();
-    header('Location: login.php');
+    header('Location: Admin_login.php');
     exit();
 }
 
@@ -378,53 +378,76 @@ try {
                                 Dashboard
                             </h1>
                             <p class="text-[#5f758c] dark:text-gray-400 text-sm mt-1 font-medium italic">
-                                Welcome back, <span class="text-primary font-bold"><?php echo htmlspecialchars($username); ?></span>. Here's what's happening today.
+                                Welcome back, <span
+                                    class="text-primary font-bold"><?php echo htmlspecialchars($username); ?></span>.
+                                Here's what's happening today.
                             </p>
                         </div>
-                        <div class="flex items-center gap-3 bg-white dark:bg-[#1a2633] px-4 py-2 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm self-start md:self-auto">
+                        <div
+                            class="flex items-center gap-3 bg-white dark:bg-[#1a2633] px-4 py-2 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm self-start md:self-auto">
                             <div class="size-2 bg-success rounded-full animate-pulse"></div>
-                            <span class="text-xs font-bold text-[#111418] dark:text-white uppercase tracking-widest">Systems Online</span>
+                            <span
+                                class="text-xs font-bold text-[#111418] dark:text-white uppercase tracking-widest">Systems
+                                Online</span>
                         </div>
                     </div>
 
                     <!-- Stats Cards (KPIs) - 4-Column Grid -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
                         <!-- Total Page Visits -->
-                        <div class="flex flex-col gap-2 rounded-xl p-4 lg:p-6 bg-white dark:bg-[#1a2633] border border-gray-100 dark:border-gray-800 shadow-sm">
-                            <p class="text-[#5f758c] dark:text-gray-400 text-xs lg:text-sm font-semibold uppercase tracking-wider">Total Page Visits</p>
+                        <div
+                            class="flex flex-col gap-2 rounded-xl p-4 lg:p-6 bg-white dark:bg-[#1a2633] border border-gray-100 dark:border-gray-800 shadow-sm">
+                            <p
+                                class="text-[#5f758c] dark:text-gray-400 text-xs lg:text-sm font-semibold uppercase tracking-wider">
+                                Total Page Visits</p>
                             <div class="flex items-baseline gap-2">
-                                <p class="text-[#111418] dark:text-white text-2xl lg:text-3xl font-black"><?php echo number_format($total_visits); ?></p>
+                                <p class="text-[#111418] dark:text-white text-2xl lg:text-3xl font-black">
+                                    <?php echo number_format($total_visits); ?></p>
                                 <span class="text-success text-xs font-bold"><?php echo $visits_change; ?></span>
                             </div>
                             <p class="text-[#5f758c] dark:text-gray-500 text-xs">Total cumulative visits</p>
                         </div>
 
                         <!-- Unique Visitors -->
-                        <div class="flex flex-col gap-2 rounded-xl p-4 lg:p-6 bg-white dark:bg-[#1a2633] border border-gray-100 dark:border-gray-800 shadow-sm">
-                            <p class="text-[#5f758c] dark:text-gray-400 text-xs lg:text-sm font-semibold uppercase tracking-wider">Unique Visitors</p>
+                        <div
+                            class="flex flex-col gap-2 rounded-xl p-4 lg:p-6 bg-white dark:bg-[#1a2633] border border-gray-100 dark:border-gray-800 shadow-sm">
+                            <p
+                                class="text-[#5f758c] dark:text-gray-400 text-xs lg:text-sm font-semibold uppercase tracking-wider">
+                                Unique Visitors</p>
                             <div class="flex items-baseline gap-2">
-                                <p class="text-[#111418] dark:text-white text-2xl lg:text-3xl font-black"><?php echo number_format($unique_visitors); ?></p>
-                                <span class="text-success text-xs font-bold"><?php echo $unique_visitors_change; ?></span>
+                                <p class="text-[#111418] dark:text-white text-2xl lg:text-3xl font-black">
+                                    <?php echo number_format($unique_visitors); ?></p>
+                                <span
+                                    class="text-success text-xs font-bold"><?php echo $unique_visitors_change; ?></span>
                             </div>
                             <p class="text-[#5f758c] dark:text-gray-500 text-xs">Last 30 days active</p>
                         </div>
 
                         <!-- Total Posts -->
-                        <div class="flex flex-col gap-2 rounded-xl p-4 lg:p-6 bg-white dark:bg-[#1a2633] border border-gray-100 dark:border-gray-800 shadow-sm">
-                            <p class="text-[#5f758c] dark:text-gray-400 text-xs lg:text-sm font-semibold uppercase tracking-wider">Live Posts</p>
+                        <div
+                            class="flex flex-col gap-2 rounded-xl p-4 lg:p-6 bg-white dark:bg-[#1a2633] border border-gray-100 dark:border-gray-800 shadow-sm">
+                            <p
+                                class="text-[#5f758c] dark:text-gray-400 text-xs lg:text-sm font-semibold uppercase tracking-wider">
+                                Live Posts</p>
                             <div class="flex items-baseline gap-2">
-                                <p class="text-[#111418] dark:text-white text-2xl lg:text-3xl font-black"><?php echo number_format($total_posts); ?></p>
+                                <p class="text-[#111418] dark:text-white text-2xl lg:text-3xl font-black">
+                                    <?php echo number_format($total_posts); ?></p>
                                 <span class="text-success text-xs font-bold"><?php echo $posts_change; ?></span>
                             </div>
                             <p class="text-[#5f758c] dark:text-gray-500 text-xs">Published on blog</p>
                         </div>
 
                         <!-- Total Inquiries -->
-                        <div class="flex flex-col gap-2 rounded-xl p-4 lg:p-6 bg-white dark:bg-[#1a2633] border border-gray-100 dark:border-gray-800 shadow-sm">
-                            <p class="text-[#5f758c] dark:text-gray-400 text-xs lg:text-sm font-semibold uppercase tracking-wider">Inquiries</p>
+                        <div
+                            class="flex flex-col gap-2 rounded-xl p-4 lg:p-6 bg-white dark:bg-[#1a2633] border border-gray-100 dark:border-gray-800 shadow-sm">
+                            <p
+                                class="text-[#5f758c] dark:text-gray-400 text-xs lg:text-sm font-semibold uppercase tracking-wider">
+                                Inquiries</p>
                             <div class="flex items-baseline gap-2">
-                                <p class="text-[#111418] dark:text-white text-2xl lg:text-3xl font-black"><?php echo number_format($total_inquiries); ?></p>
-                                <span class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px] font-bold">NEW</span>
+                                <p class="text-[#111418] dark:text-white text-2xl lg:text-3xl font-black">
+                                    <?php echo number_format($total_inquiries); ?></p>
+                                <span
+                                    class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px] font-bold">NEW</span>
                             </div>
                             <p class="text-[#5f758c] dark:text-gray-500 text-xs">Messages & Donations</p>
                         </div>
@@ -447,7 +470,8 @@ try {
                                     </div>
                                     <div class="text-right">
                                         <p class="text-[#111418] dark:text-white text-2xl font-black">
-                                            <?php echo number_format(array_sum($monthly_visits)); ?></p>
+                                            <?php echo number_format(array_sum($monthly_visits)); ?>
+                                        </p>
                                         <p
                                             class="text-[#5f758c] dark:text-gray-500 text-[10px] uppercase font-bold tracking-tighter">
                                             Yearly Total</p>
@@ -529,21 +553,24 @@ try {
                                         class="p-3 rounded-lg bg-background-light dark:bg-background-dark/50 border border-gray-50 dark:border-gray-800">
                                         <p class="text-[10px] font-bold text-gray-400 uppercase">Today</p>
                                         <p class="text-lg font-black text-[#111418] dark:text-white">
-                                            <?php echo number_format($today_visits); ?></p>
+                                            <?php echo number_format($today_visits); ?>
+                                        </p>
                                         <p class="text-[9px] text-gray-500">Peak Visits</p>
                                     </div>
                                     <div
                                         class="p-3 rounded-lg bg-background-light dark:bg-background-dark/50 border border-gray-50 dark:border-gray-800">
                                         <p class="text-[10px] font-bold text-gray-400 uppercase">Drafts</p>
                                         <p class="text-lg font-black text-[#111418] dark:text-white">
-                                            <?php echo number_format($total_drafts); ?></p>
+                                            <?php echo number_format($total_drafts); ?>
+                                        </p>
                                         <p class="text-[9px] text-gray-500">To Review</p>
                                     </div>
                                     <div
                                         class="p-3 rounded-lg bg-background-light dark:bg-background-dark/50 border border-gray-50 dark:border-gray-800">
                                         <p class="text-[10px] font-bold text-gray-400 uppercase">Weekly</p>
                                         <p class="text-lg font-black text-[#111418] dark:text-white">
-                                            <?php echo number_format($this_week_visits); ?></p>
+                                            <?php echo number_format($this_week_visits); ?>
+                                        </p>
                                         <p class="text-[9px] text-gray-500">This Week</p>
                                     </div>
                                     <div
