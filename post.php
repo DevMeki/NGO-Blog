@@ -142,6 +142,48 @@ if (empty($posts) && $conn->error) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Gravitas+One&display=swap" rel="stylesheet">
 
+    <style>
+        /* Custom styles for rich text content */
+        .post-content ul {
+            list-style-type: disc;
+            padding-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .post-content ol {
+            list-style-type: decimal;
+            padding-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .post-content b,
+        .post-content strong {
+            font-weight: bold;
+        }
+
+        .post-content i,
+        .post-content em {
+            font-style: italic;
+        }
+
+        .post-content u {
+            text-decoration: underline;
+        }
+
+        .post-content a {
+            color: blue;
+            text-decoration: underline;
+        }
+
+        .post-content a:hover {
+            opacity: 0.8;
+        }
+
+        .post-content p {
+            margin-bottom: 1rem;
+        }
+    </style>
+
 </head>
 
 <body class="bg-background-light font-display text-[#111418]">
@@ -220,7 +262,7 @@ if (empty($posts) && $conn->error) {
                                 <?php endif; ?>
                             </div>
                             <!-- Article Body -->
-                            <div class="p-6 md:p-8 prose prose-lg max-w-none text-[#333]">
+                            <div class="p-6 md:p-8 prose prose-lg max-w-none text-[#333] post-content">
                                 <?php echo $post['Content']; ?>
                                 <p class="mt-2">Author: <?php echo $published_by; ?></p>
                             </div>

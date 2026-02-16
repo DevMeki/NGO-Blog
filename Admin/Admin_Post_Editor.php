@@ -36,7 +36,7 @@ if ($draft_id > 0) {
 
                 // Populate form fields with draft data
                 $post_title = htmlspecialchars($draft['Title'] ?? '');
-                $post_content = htmlspecialchars($draft['Content'] ?? '');
+                $post_content = $draft['Content'] ?? '';
                 $Categories = htmlspecialchars($draft['Categories'] ?? '');
                 $Tags = htmlspecialchars($draft['Tags'] ?? '');
                 $Featured = htmlspecialchars($draft['Featured'] ?? '');
@@ -103,6 +103,39 @@ if (isset($_GET['error'])) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Gravitas+One&display=swap" rel="stylesheet">
 
+
+    <style>
+        #post_content ul {
+            list-style-type: disc !important;
+            padding-left: 2rem !important;
+            margin-bottom: 1rem !important;
+            display: block !important;
+        }
+
+        #post_content ol {
+            list-style-type: decimal !important;
+            padding-left: 2rem !important;
+            margin-bottom: 1rem !important;
+            display: block !important;
+        }
+
+        #post_content li {
+            display: list-item !important;
+        }
+
+        #post_content a {
+            color: blue !important;
+            text-decoration: underline !important;
+        }
+
+        .editor-btn-active {
+            background-color: #e5e7eb !important;
+            /* gray-200 */
+            color: #ea580c !important;
+            /* orange-600 */
+            border-color: #ea580c !important;
+        }
+    </style>
 </head>
 
 <body class="bg-gray-100 font-[Public_Sans,_sans-serif] text-gray-950">
@@ -206,7 +239,7 @@ if (isset($_GET['error'])) {
                                     <div class="flex flex-1 flex-col">
 
                                         <!-- FIXED: Removed incorrect value attribute from contenteditable div -->
-                                        <div class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-t-lg text-text-primary focus:outline-0 focus:ring-0 border-0 bg-white focus:border-primary min-h-72 placeholder:text-gray-400 p-[15px] text-base font-normal leading-normal"
+                                        <div class="form-input block w-full min-w-0 resize-none overflow-hidden rounded-t-lg text-text-primary focus:outline-0 focus:ring-0 border-0 bg-white focus:border-primary min-h-[18rem] placeholder:text-gray-400 p-[15px] text-base font-normal leading-normal"
                                             id="post_content" contenteditable="true" role="textbox">
                                             <?php echo $post_content; ?>
                                         </div>
@@ -220,8 +253,34 @@ if (isset($_GET['error'])) {
                                         </p>
                                         <div
                                             class="flex border-t border-t-[#dbe0e6] bg-gray-50 item-center pr-[15px] rounded-b-lg px-[15px] py-2">
-                                            <div class="flex items-center gap-4 flex-1 justify-between">
-                                                <!-- Editor buttons commented out as requested -->
+                                            <div
+                                                class="flex items-center gap-2 flex-1 justify-start overflow-x-auto py-1">
+                                                <button type="button" id="btn-bold" onclick="formatDoc('bold')"
+                                                    class="p-2 hover:bg-gray-200 rounded text-gray-600 transition-colors"
+                                                    title="Bold"><i class="bi bi-type-bold"></i></button>
+                                                <button type="button" id="btn-italic" onclick="formatDoc('italic')"
+                                                    class="p-2 hover:bg-gray-200 rounded text-gray-600 transition-colors"
+                                                    title="Italic"><i class="bi bi-type-italic"></i></button>
+                                                <button type="button" id="btn-underline"
+                                                    onclick="formatDoc('underline')"
+                                                    class="p-2 hover:bg-gray-200 rounded text-gray-600 transition-colors"
+                                                    title="Underline"><i class="bi bi-type-underline"></i></button>
+                                                <div class="w-px h-6 bg-gray-300 mx-1"></div>
+                                                <button type="button" id="btn-link" onclick="addLink()"
+                                                    class="p-2 hover:bg-gray-200 rounded text-gray-600 transition-colors"
+                                                    title="Hyperlink"><i class="bi bi-link-45deg"></i></button>
+                                                <button type="button" id="btn-unlink" onclick="formatDoc('unlink')"
+                                                    class="p-2 hover:bg-gray-200 rounded text-gray-600 transition-colors"
+                                                    title="Remove Link"><i class="bi bi-unlock"></i></button>
+                                                <div class="w-px h-6 bg-gray-300 mx-1"></div>
+                                                <button type="button" id="btn-unorderedList"
+                                                    onclick="formatDoc('insertUnorderedList')"
+                                                    class="p-2 hover:bg-gray-200 rounded text-gray-600 transition-colors"
+                                                    title="Bullet Points"><i class="bi bi-list-ul"></i></button>
+                                                <button type="button" id="btn-orderedList"
+                                                    onclick="formatDoc('insertOrderedList')"
+                                                    class="p-2 hover:bg-gray-200 rounded text-gray-600 transition-colors"
+                                                    title="Numbered List"><i class="bi bi-list-ol"></i></button>
                                             </div>
                                         </div>
                                     </div>
@@ -497,7 +556,7 @@ if (isset($_GET['error'])) {
         //Validation Function
         function Post_validation() {
             const post_title = document.getElementById("post_title").value.trim();
-            const post_content1 = document.getElementById("post_content").innerText.trim();
+            const post_content1 = document.getElementById("post_content").innerHTML.trim();
             const uploaded_files_count = filesToUpload.files.length;
 
             const Post_TitleErr1 = document.getElementById("Post_TitleErr");
@@ -589,12 +648,81 @@ if (isset($_GET['error'])) {
                 featuredCheckbox.checked = <?php echo ($Featured == 'Yes') ? 'true' : 'false'; ?>;
             <?php endif; ?>
         });
-    </script>
 
-    <script>
+        // Rich Text Formatting Functions
+        function formatDoc(command, value = null) {
+            document.execCommand(command, false, value);
+            document.getElementById('post_content').focus();
+            checkActiveButtons();
+        }
+
+        function addLink() {
+            const url = prompt("Enter the URL:");
+            if (url) {
+                formatDoc('createLink', url);
+            }
+        }
+
+        function checkActiveButtons() {
+            const commands = [
+                { id: 'btn-bold', command: 'bold' },
+                { id: 'btn-italic', command: 'italic' },
+                { id: 'btn-underline', command: 'underline' },
+                { id: 'btn-unorderedList', command: 'insertUnorderedList' },
+                { id: 'btn-orderedList', command: 'insertOrderedList' }
+            ];
+
+            commands.forEach(btn => {
+                const element = document.getElementById(btn.id);
+                if (document.queryCommandState(btn.command)) {
+                    element.classList.add('editor-btn-active');
+                } else {
+                    element.classList.remove('editor-btn-active');
+                }
+            });
+
+            // Check for link
+            const linkBtn = document.getElementById('btn-link');
+            const selection = window.getSelection();
+            let isLink = false;
+            if (selection.rangeCount > 0) {
+                let node = selection.anchorNode;
+                while (node && node.id !== 'post_content') {
+                    if (node.nodeName === 'A') {
+                        isLink = true;
+                        break;
+                    }
+                    node = node.parentNode;
+                }
+            }
+            if (isLink) {
+                linkBtn.classList.add('editor-btn-active');
+            } else {
+                linkBtn.classList.remove('editor-btn-active');
+            }
+        }
+
+        // Handle Enter key for new lines in contenteditable
+        document.getElementById('post_content').addEventListener('keydown', function (e) {
+            // Standard behavior for contenteditable usually handles Enter well, 
+            // but we can enforce BR if needed or ensure paragraphs are used.
+        });
+
+        // Handle Paste to strip formatting
+        document.getElementById('post_content').addEventListener('paste', function (e) {
+            e.preventDefault();
+            const text = (e.originalEvent || e).clipboardData.getData('text/plain');
+            document.execCommand('insertText', false, text);
+        });
+
+        // Event listeners for updating button states
+        document.addEventListener('selectionchange', checkActiveButtons);
+        document.getElementById('post_content').addEventListener('keyup', checkActiveButtons);
+        document.getElementById('post_content').addEventListener('mouseup', checkActiveButtons);
+
         function Draft_validation() {
             const post_title = document.getElementById("post_title").value.trim();
-            const post_content1 = document.getElementById("post_content").innerText.trim();
+            const post_content1 = document.getElementById("post_content").innerHTML.trim();
             const uploaded_files_count = filesToUpload.files.length;
             const hidden_post_content = document.getElementById("hidden_post_content");
             hidden_post_content.value = post_content1;
