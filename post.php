@@ -171,10 +171,10 @@ if (empty($posts) && $conn->error) {
                     <!-- Breadcrumbs -->
                     <div class="flex flex-start gap-2 mb-6">
                         <a class="text-[#5f758c] hover:text-blue-600 text-base font-medium leading-normal"
-                            href="home.php">Home</a>
+                            href="index.php">Home</a>
                         <span class="text-[#5f758c] text-base font-medium leading-normal">/</span>
                         <a class="text-[#5f758c] hover:text-blue-600 text-base font-medium leading-normal"
-                            href="blog.php">Blog</a>
+                            href="Blog.php">Blog</a>
                         <span class="text-[#5f758c] text-base font-medium leading-normal">/</span>
                         <span class="text-[#111418] text-base font-medium leading-normal truncate">
                             <?php echo htmlspecialchars($post['Title']); ?>

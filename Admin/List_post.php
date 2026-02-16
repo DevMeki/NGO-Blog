@@ -302,22 +302,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
         .mobile-card {
             transition: all 0.2s ease;
         }
+
         .mobile-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
+
         .dark .mobile-card:hover {
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
-        
+
         /* Mobile search results */
         .mobile-search-result {
             border-bottom: 1px solid #e5e7eb;
             transition: background-color 0.2s;
         }
+
         .dark .mobile-search-result {
             border-bottom-color: #4b5563;
         }
+
         .mobile-search-result:last-child {
             border-bottom: none;
         }
@@ -332,7 +336,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
                 <div class="max-w-7xl mx-auto">
                     <!-- PageHeading -->
                     <div class="flex flex-wrap justify-between gap-4 items-center mb-4 sm:mb-6">
-                        <p class="text-gray-900 dark:text-white text-2xl sm:text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
+                        <p
+                            class="text-gray-900 dark:text-white text-2xl sm:text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
                             Manage Blog Posts</p>
                         <a href="Admin_Post_Editor.php" class="w-full sm:w-auto">
                             <button
@@ -342,7 +347,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
                             </button>
                         </a>
                     </div>
-                    
+
                     <!-- Search and Filters -->
                     <div class="flex flex-col gap-4 mb-4 sm:mb-6">
                         <!-- SearchBar -->
@@ -350,7 +355,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
                             <label class="flex flex-col h-12 w-full">
                                 <div
                                     class="flex w-full flex-1 items-stretch rounded-lg h-full bg-white dark:bg-background-dark border border-gray-200 dark:border-gray-700">
-                                    <div class="text-gray-500 dark:text-gray-400 flex items-center justify-center pl-3 sm:pl-4">
+                                    <div
+                                        class="text-gray-500 dark:text-gray-400 flex items-center justify-center pl-3 sm:pl-4">
                                         <span class="material-symbols-outlined text-sm sm:text-base">search</span>
                                     </div>
                                     <input
@@ -363,9 +369,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
                             <div id="resultsContainer" class="mt-2"></div>
                         </div>
                     </div>
-                    
+
                     <!-- Desktop Table (hidden on mobile) -->
-                    <div class="hidden md:block overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-background-dark">
+                    <div
+                        class="hidden md:block overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-background-dark">
                         <?php if ($fetch_error): ?>
                             <div class="col-span-full bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg"
                                 role="alert">
@@ -447,15 +454,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
                                 <p><?php echo htmlspecialchars($fetch_error); ?></p>
                             </div>
                         <?php elseif (!empty($posts)): ?>
-                            <?php foreach ($posts as $post): 
+                            <?php foreach ($posts as $post):
                                 // Truncate content for mobile
                                 $snippet_mobile = strip_tags($post['content']);
                                 $snippet_mobile = strlen($snippet_mobile) > 100 ? substr($snippet_mobile, 0, 100) . '...' : $snippet_mobile;
-                                
+
                                 // Format date
                                 $formatted_date = date("M j, Y", strtotime($post['date_posted']));
-                            ?>
-                                <div class="mobile-card bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                                ?>
+                                <div
+                                    class="mobile-card bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                                     <!-- Card Header -->
                                     <div class="p-3 sm:p-4 border-b border-gray-100 dark:border-gray-700">
                                         <div class="flex justify-between items-start">
@@ -471,7 +479,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <!-- Card Body -->
                                     <div class="p-3 sm:p-4 space-y-3">
                                         <!-- Content Preview -->
@@ -481,7 +489,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
                                                 <?php echo htmlspecialchars($snippet_mobile); ?>
                                             </p>
                                         </div>
-                                        
+
                                         <!-- Author and Date -->
                                         <div class="grid grid-cols-2 gap-4">
                                             <div>
@@ -498,9 +506,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <!-- Card Footer - Actions -->
-                                    <div class="p-3 sm:p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30">
+                                    <div
+                                        class="p-3 sm:p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30">
                                         <button onclick="show_Modal(<?php echo $post['post_id']; ?>)"
                                             class="flex items-center justify-center gap-2 w-full px-4 py-2 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors">
                                             <span class="material-symbols-outlined text-base">delete</span>
@@ -510,12 +519,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
                                 </div>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 text-center">
-                                <span class="material-symbols-outlined text-4xl text-gray-400 dark:text-gray-500 mb-2">article</span>
+                            <div
+                                class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 text-center">
+                                <span
+                                    class="material-symbols-outlined text-4xl text-gray-400 dark:text-gray-500 mb-2">article</span>
                                 <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-1">No Posts Yet</h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Get started by creating your first blog post.</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Get started by creating your first blog
+                                    post.</p>
                                 <a href="Admin_Post_Editor.php" class="inline-block mt-3">
-                                    <button class="flex items-center justify-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors">
+                                    <button
+                                        class="flex items-center justify-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors">
                                         <span class="material-symbols-outlined text-base">add_circle</span>
                                         <span class="text-sm font-medium">Create Post</span>
                                     </button>
@@ -539,13 +552,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
                                 echo "<button class='px-3 py-1 rounded-md text-sm font-medium border border-gray-200 text-gray-600 cursor-not-allowed'
                 disabled=''><span class='material-symbols-outlined text-lg sm:text-xl'>chevron_left</span></button>";
                             }
-                            
+
                             // Show limited pagination on mobile
                             $max_visible_pages = 5;
                             $start_page = max(1, $current_page - 2);
                             $end_page = min($total_pages, $start_page + $max_visible_pages - 1);
                             $start_page = max(1, $end_page - $max_visible_pages + 1);
-                            
+
                             for ($i = $start_page; $i <= $end_page; $i++) {
                                 if ($i == $current_page) {
                                     echo "<button class='flex items-center justify-center h-8 sm:h-9 w-8 sm:w-9 rounded-lg bg-primary text-white text-xs sm:text-sm font-medium'>$i</button>";
@@ -555,7 +568,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
                   <a/>";
                                 }
                             }
-                            
+
                             $next_page = $current_page + 1;
                             if ($current_page < $total_pages) {
                                 echo "<a href='?page=$next_page'>
@@ -571,10 +584,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
             </main>
         </div>
     </div>
-    
+
     <!-- Confirmation Modal -->
-    <div id="Modal_Box" class="delete hidden fixed inset-0 bg-gray-900 bg-opacity-50 items-center justify-center z-50 p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-4 sm:p-6 w-full max-w-md mx-auto transform transition-all scale-100">
+    <div id="Modal_Box"
+        class="delete hidden fixed inset-0 bg-gray-900 bg-opacity-50 items-center justify-center z-50 p-4">
+        <div
+            class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-4 sm:p-6 w-full max-w-md mx-auto transform transition-all scale-100">
             <div class="flex items-start">
                 <div
                     class="mx-auto flex-shrink-0 flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-danger/10 sm:mx-0">
@@ -584,7 +599,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
                     <h3 class="text-lg leading-6 font-bold text-gray-900 dark:text-white" id="modal-title">Confirm
                         Deletion</h3>
                     <div class="mt-2">
-                        <p class="text-sm text-gray-500 dark:text-gray-400" id="modal_message">Are you sure you want to delete this Post?
+                        <p class="text-sm text-gray-500 dark:text-gray-400" id="modal_message">Are you sure you want to
+                            delete this Post?
                             This action cannot be undone.</p>
                     </div>
                 </div>
@@ -657,7 +673,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
                 formData.append('post_id', idToDelete);
                 formData.append('action', 'delete');
 
-                const response = await fetch('List_post.php', {
+                const response = await fetch('List_Post.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -698,14 +714,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
             // Remove desktop row
             const desktopRow = document.querySelector(`[data-post-id="${postId}"]`);
             if (desktopRow) desktopRow.remove();
-            
+
             // Remove mobile card
             const mobileCards = document.querySelectorAll('.mobile-card');
             mobileCards.forEach(card => {
                 const deleteBtn = card.querySelector(`[onclick*="${postId}"]`);
                 if (deleteBtn) card.remove();
             });
-            
+
             // Check if all posts are deleted
             const remainingPosts = document.querySelectorAll('[data-post-id], .mobile-card');
             if (remainingPosts.length === 0) {
@@ -772,7 +788,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
                 const mobileResults = results.map(post => {
                     const snippet = post.content ? post.content.substring(0, 80) + '...' : '';
                     const date = new Date(post.date_posted).toLocaleDateString();
-                    
+
                     return `
                         <div class="mobile-search-result bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
                             <div class="font-medium text-gray-900 dark:text-white mb-1">
@@ -795,7 +811,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action']) && $_POST['
                         </div>
                     `;
                 }).join('');
-                
+
                 container.innerHTML = `<div class="space-y-3">${mobileResults}</div>`;
             } else {
                 // Desktop table for search results

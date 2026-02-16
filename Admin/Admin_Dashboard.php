@@ -489,7 +489,7 @@ try {
                                     class="p-6 border-b border-gray-50 dark:border-gray-800 flex justify-between items-center">
                                     <h3 class="text-[#111418] dark:text-white font-bold italic">Recent Content</h3>
                                     <a class="text-xs font-bold text-primary flex items-center gap-1 hover:gap-2 transition-all"
-                                        href="List_post.php">
+                                        href="List_Post.php">
                                         VIEW ALL <span class="material-symbols-outlined text-sm">arrow_forward</span>
                                     </a>
                                 </div>
